@@ -1,13 +1,13 @@
 package uos.capstone.dms.security;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,6 +19,7 @@ import uos.capstone.dms.security.handler.JwtAuthenticationEntryPoint;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@Log4j2
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
@@ -50,22 +51,24 @@ public class SecurityConfig {
 
                 .and()      //인증 진행할 uri설정
                 .authorizeHttpRequests()
-                .requestMatchers("/user/**").permitAll()
-                .anyRequest().authenticated()
+                .requestMatchers("/auth/**").permitAll()
+                .anyRequest().authenticated();
 
-                .and()       //jwt필터를 usernamepassword인증 전에 실행
+        http      //jwt필터를 usernamepassword인증 전에 실행
                 .addFilterBefore(new JwtRequestFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
+
+
+        log.info("securityConfig");
         return http.build();
     }
 
-    /**
-     * Security검사를 하지 않을 URL
-     * @return 아직 없기때문에 null 반환
-     */
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return null;
+//    /**
+//     * Security검사를 하지 않을 URL
+//     * @return 아직 없기때문에 null 반환
+//     */
+//    @Bean
+//    public WebSecurityCustomizer webSecurityCustomizer() {
 //        return (web) -> web.ignoring();
-    }
+//    }
 }
