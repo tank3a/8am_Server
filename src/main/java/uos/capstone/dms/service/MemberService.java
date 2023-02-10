@@ -40,7 +40,7 @@ public class MemberService implements UserDetailsService {
         GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(member.getRole().toString());
 
         return new User(
-                member.getUsername(),
+                member.getUserId(),
                 member.getPassword(),
                 Collections.singleton(grantedAuthority)
         );
