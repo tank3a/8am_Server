@@ -4,9 +4,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.boot.web.server.Cookie;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import uos.capstone.dms.domain.security.TokenDTO;
 import uos.capstone.dms.domain.user.LoginRequestDTO;
@@ -36,8 +37,17 @@ public class MemberController {
 
     @Operation(summary = "로그인")
     @PostMapping("/login")
-    public ResponseEntity<TokenDTO> memberLogin(@RequestBody LoginRequestDTO loginRequestDTO) {
-        return ResponseEntity.ok(memberService.login(loginRequestDTO));
+    public ResponseEntity<String> memberLogin(@RequestBody LoginRequestDTO loginRequestDTO) {
+        TokenDTO tokenDTO = memberService.login(loginRequestDTO);
+        ResponseCookie responseCookie = ResponseCookie
+                .from("refresh_token", tokenDTO.getRefreshToken())
+                .httpOnly(true)
+                .secure(true)
+                .maxAge(tokenDTO.getDuration())
+                .path("/")
+                .build();
+
+        return ResponseEntity.ok().header("Set-Cookie", responseCookie.toString()).body(tokenDTO.getAccessToken());
     }
 
     @Operation(summary = "회원정보 호출")

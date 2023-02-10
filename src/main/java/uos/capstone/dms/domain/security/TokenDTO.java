@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Duration;
 import java.time.Instant;
 
 @Data
@@ -16,6 +17,6 @@ public class TokenDTO {
     private String grantType;
     private String accessToken;
     private String refreshToken;
-    private Instant expirationDate;
+    private Duration duration;
 
 }
