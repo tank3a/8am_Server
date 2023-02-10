@@ -51,7 +51,8 @@ public class SecurityConfig {
 
                 .and()      //인증 진행할 uri설정
                 .authorizeHttpRequests()
-                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/member/login").permitAll()
+                .requestMatchers("/member/signup").permitAll()
                 .anyRequest().authenticated();
 
         http      //jwt필터를 usernamepassword인증 전에 실행
