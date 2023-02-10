@@ -38,12 +38,12 @@ public class Member {
     @NonNull
     private String phoneNo;
 
-    @NonNull
     private boolean isSocial;
 
     private int zipcode;
     private String street;
     private String addressDetail;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 
@@ -51,7 +51,7 @@ public class Member {
     private MemberImage memberImage;    //프로필 사진
 
     @Builder
-    public Member(@NonNull String userId, @NonNull String password, @NonNull String username, @NonNull String nickname, int gender, LocalDate birth, @NonNull String email, @NonNull String phoneNo, @NonNull boolean isSocial, int zipcode, String street, String addressDetail, Role role, MemberImage memberImage) {
+    public Member(@NonNull String userId, @NonNull String password, @NonNull String username, @NonNull String nickname, int gender, LocalDate birth, @NonNull String email, @NonNull String phoneNo, boolean isSocial, int zipcode, String street, String addressDetail, Role role, MemberImage memberImage) {
         this.userId = userId;
         this.password = password;
         this.username = username;

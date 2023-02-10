@@ -48,13 +48,13 @@ public class MemberService implements UserDetailsService {
 
     public MemberResponseDTO findMemberByEntityId(Long entityId) {
         return memberRepository.findByEntityId(entityId)
-                .map(member -> MemberMapper.INSTANCE.memberToMemberResponseDTO(member))
+                .map(member -> MemberMapper.INSTANCE.toMemberResponseDTO(member))
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
     }
 
     public MemberResponseDTO findMemberByUserId(String userId) {
         return memberRepository.findByUserId(userId)
-                .map(member -> MemberMapper.INSTANCE.memberToMemberResponseDTO(member))
+                .map(member -> MemberMapper.INSTANCE.toMemberResponseDTO(member))
                 .orElseThrow(() -> new RuntimeException("해당 ID를 가진 사용자가 존재하지 않습니다."));
     }
 
@@ -69,7 +69,7 @@ public class MemberService implements UserDetailsService {
             throw new RuntimeException("이미 존재하는 아이디입니다.");
         }
 
-        Member member = MemberMapper.INSTANCE.MemberRequestDTOToMember(requestDTO);
+        Member member = MemberMapper.INSTANCE.toMember(requestDTO);
 
         memberRepository.save(member);
     }
