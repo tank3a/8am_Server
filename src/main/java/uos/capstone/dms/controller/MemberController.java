@@ -2,15 +2,17 @@ package uos.capstone.dms.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import uos.capstone.dms.domain.security.TokenDTO;
 import uos.capstone.dms.domain.user.LoginRequestDTO;
-import uos.capstone.dms.domain.user.MemberRequestDTO;
+import uos.capstone.dms.domain.user.MemberJoinRequestDTO;
 import uos.capstone.dms.domain.user.MemberResponseDTO;
 import uos.capstone.dms.security.SecurityUtil;
 import uos.capstone.dms.service.MemberService;
@@ -27,11 +29,11 @@ public class MemberController {
 
     @Operation(summary = "회원가입")
     @PostMapping("/signup")
-    public String memberSignup(@RequestBody MemberRequestDTO memberRequestDTO) {
+    public ResponseEntity<String> memberSignup(@ModelAttribute MemberJoinRequestDTO memberJoinRequestDTO) {
 
-        memberRequestDTO.setPassword(passwordEncoder.encode(memberRequestDTO.getPassword()));
-        memberService.signup(memberRequestDTO);
-        return "redirect:/user/login";
+        memberJoinRequestDTO.setPassword(passwordEncoder.encode(memberJoinRequestDTO.getPassword()));
+        memberService.signup(memberJoinRequestDTO);
+        return new ResponseEntity<>("", HttpStatus.OK);
     }
 
     @Operation(summary = "로그인")

@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 import uos.capstone.dms.domain.user.Member;
-import uos.capstone.dms.domain.user.MemberRequestDTO;
+import uos.capstone.dms.domain.user.MemberJoinRequestDTO;
 import uos.capstone.dms.domain.user.MemberResponseDTO;
 
 @Mapper(componentModel = "spring")
@@ -16,5 +16,6 @@ public interface MemberMapper {
 
     @Mapping(target = "role", constant = "ROLE_USER")
     @Mapping(target = "isSocial", constant = "false")
-    Member toMember(MemberRequestDTO memberRequestDTO);
+    @Mapping(target = "memberImage", ignore = true)
+    Member joinRequestDTOToMember(MemberJoinRequestDTO memberJoinRequestDTO);
 }

@@ -67,4 +67,8 @@ public class Member {
         this.role = role;
         this.memberImage = memberImage;
     }
+
+    public void updateMemberImage(MemberImage memberImage) {
+        this.memberImage = memberImage;
+    }
 }

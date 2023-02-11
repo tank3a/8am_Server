@@ -1,26 +1,17 @@
 package uos.capstone.dms.domain.user;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
+import uos.capstone.dms.domain.Image;
 
 @Entity
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString
 @Getter
-public class MemberImage {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder
+public class MemberImage extends Image {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String uuid;
-    private String path;
-
-    @Builder
-    public MemberImage(String uuid, String path) {
-        this.uuid = uuid;
-        this.path = path;
-    }
 }
