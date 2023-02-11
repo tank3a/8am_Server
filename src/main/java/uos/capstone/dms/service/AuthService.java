@@ -4,13 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uos.capstone.dms.domain.security.RefreshToken;
 import uos.capstone.dms.domain.security.TokenDTO;
 import uos.capstone.dms.domain.user.LoginRequestDTO;
-import uos.capstone.dms.repository.MemberRepository;
 import uos.capstone.dms.repository.RefreshTokenRepository;
 import uos.capstone.dms.security.JwtTokenProvider;
 
