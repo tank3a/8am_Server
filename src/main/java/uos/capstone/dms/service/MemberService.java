@@ -81,7 +81,7 @@ public class MemberService implements UserDetailsService {
         Member member = MemberMapper.INSTANCE.joinRequestDTOToMember(requestDTO);
         memberRepository.save(member);
 
-        if(!requestDTO.getMemberImage().isEmpty()) {
+        if(!(requestDTO.getMemberImage() == null)) {
             MemberImage memberImage = saveMemberImage(requestDTO.getMemberImage());
             member.updateMemberImage(memberImage);
         }
