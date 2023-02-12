@@ -2,7 +2,6 @@ package uos.capstone.dms.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -44,6 +43,7 @@ public class MemberController {
                 .from("refresh_token", tokenDTO.getRefreshToken())
                 .httpOnly(true)
                 .secure(true)
+                .sameSite("None")
                 .maxAge(tokenDTO.getDuration())
                 .path("/")
                 .build();
