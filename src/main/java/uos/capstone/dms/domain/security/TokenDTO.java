@@ -13,7 +13,7 @@ import java.time.Duration;
 @AllArgsConstructor
 public class TokenDTO {
 
-    private String grantType;
+    private String tokenType;
     private String accessToken;
     private String refreshToken;
     private Duration duration;

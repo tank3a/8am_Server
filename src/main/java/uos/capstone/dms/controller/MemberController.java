@@ -37,7 +37,7 @@ public class MemberController {
 
     @Operation(summary = "로그인")
     @PostMapping("/login")
-    public ResponseEntity<String> memberLogin(@RequestBody LoginRequestDTO loginRequestDTO) {
+    public ResponseEntity<String> memberLogin(@ModelAttribute LoginRequestDTO loginRequestDTO) {
         TokenDTO tokenDTO = memberService.login(loginRequestDTO);
         ResponseCookie responseCookie = ResponseCookie
                 .from("refresh_token", tokenDTO.getRefreshToken())

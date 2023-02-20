@@ -65,7 +65,7 @@ public class JwtTokenProvider {
 
         //TokenDTO에 두 토큰을 담아서 반환
         return TokenDTO.builder()
-                .grantType(BEARER_TYPE)
+                .tokenType(BEARER_TYPE)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .duration(Duration.ofMillis(refreshTokenValidationTime))

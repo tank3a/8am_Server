@@ -2,8 +2,12 @@ package uos.capstone.dms.domain.user;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.Map;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -19,8 +23,7 @@ public class Member {
     @Column(updatable = false, unique = true)
     private String userId;     //사용자 ID값
 
-    @NonNull
-    private String password;     //isSocial시 Token값이 저장됨
+    private String password;
 
     @NonNull
     private String username;
@@ -39,6 +42,7 @@ public class Member {
     private String phoneNo;
 
     private boolean isSocial;
+    private Provider provider;
 
     private int zipcode;
     private String street;
@@ -51,7 +55,7 @@ public class Member {
     private MemberImage memberImage;    //프로필 사진
 
     @Builder
-    public Member(@NonNull String userId, @NonNull String password, @NonNull String username, @NonNull String nickname, int gender, LocalDate birth, @NonNull String email, @NonNull String phoneNo, boolean isSocial, int zipcode, String street, String addressDetail, Role role, MemberImage memberImage) {
+    public Member(@NonNull String userId, String password, @NonNull String username, @NonNull String nickname, int gender, LocalDate birth, @NonNull String email, @NonNull String phoneNo, boolean isSocial, Provider provider, int zipcode, String street, String addressDetail, Role role, MemberImage memberImage) {
         this.userId = userId;
         this.password = password;
         this.username = username;
@@ -61,6 +65,7 @@ public class Member {
         this.email = email;
         this.phoneNo = phoneNo;
         this.isSocial = isSocial;
+        this.provider = provider;
         this.zipcode = zipcode;
         this.street = street;
         this.addressDetail = addressDetail;
@@ -71,4 +76,5 @@ public class Member {
     public void updateMemberImage(MemberImage memberImage) {
         this.memberImage = memberImage;
     }
+
 }

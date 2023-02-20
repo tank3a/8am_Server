@@ -86,7 +86,6 @@ public class MemberService implements UserDetailsService {
             member.updateMemberImage(memberImage);
         }
 
-
     }
 
     @Transactional
