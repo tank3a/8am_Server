@@ -8,6 +8,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,6 +26,12 @@ public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private static final String[] URL_TO_PERMIT = {
+            "/member/login",
+            "/member/signup",
+            "/v3/api-docs/**",
+            "/swagger-ui/**"
+    };
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -51,7 +58,7 @@ public class SecurityConfig {
 
                 .and()      //인증 진행할 uri설정
                 .authorizeHttpRequests()
-                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers(URL_TO_PERMIT).permitAll()
                 .anyRequest().authenticated();
 
         http      //jwt필터를 usernamepassword인증 전에 실행
@@ -62,13 +69,4 @@ public class SecurityConfig {
         log.info("securityConfig");
         return http.build();
     }
-
-//    /**
-//     * Security검사를 하지 않을 URL
-//     * @return 아직 없기때문에 null 반환
-//     */
-//    @Bean
-//    public WebSecurityCustomizer webSecurityCustomizer() {
-//        return (web) -> web.ignoring();
-//    }
 }

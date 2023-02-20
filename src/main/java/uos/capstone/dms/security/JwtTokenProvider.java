@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import uos.capstone.dms.domain.security.TokenDTO;
 
 import java.security.Key;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -46,13 +47,13 @@ public class JwtTokenProvider {
         //토큰 생성시간
         Instant now = Instant.from(OffsetDateTime.now());
         //accessToken 만료시간
-        Instant accessTokenExpirationDate = now.plusMillis(accessTokenValidationTime);
+        Instant refreshTokenExpirationDate = now.plusMillis(refreshTokenValidationTime);
 
         //accessToken 생성
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("roles", roles)
-                .setExpiration(Date.from(accessTokenExpirationDate))
+                .setExpiration(Date.from(now.plusMillis(accessTokenValidationTime)))
                 .signWith(encodedKey)
                 .compact();
 
@@ -64,10 +65,10 @@ public class JwtTokenProvider {
 
         //TokenDTO에 두 토큰을 담아서 반환
         return TokenDTO.builder()
-                .grantType(BEARER_TYPE)
+                .tokenType(BEARER_TYPE)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
-                .expirationDate(accessTokenExpirationDate)
+                .duration(Duration.ofMillis(refreshTokenValidationTime))
                 .build();
     }
 

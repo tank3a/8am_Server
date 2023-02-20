@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
+import java.time.Duration;
 
 @Data
 @Builder
@@ -13,9 +13,9 @@ import java.time.Instant;
 @AllArgsConstructor
 public class TokenDTO {
 
-    private String grantType;
+    private String tokenType;
     private String accessToken;
     private String refreshToken;
-    private Instant expirationDate;
+    private Duration duration;
 
 }
