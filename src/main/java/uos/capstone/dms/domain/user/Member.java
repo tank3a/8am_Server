@@ -42,7 +42,6 @@ public class Member {
     private String phoneNo;
 
     private boolean isSocial;
-    private Provider provider;
 
     private int zipcode;
     private String street;
@@ -55,7 +54,7 @@ public class Member {
     private MemberImage memberImage;    //프로필 사진
 
     @Builder
-    public Member(@NonNull String userId, String password, @NonNull String username, @NonNull String nickname, int gender, LocalDate birth, @NonNull String email, @NonNull String phoneNo, boolean isSocial, Provider provider, int zipcode, String street, String addressDetail, Role role, MemberImage memberImage) {
+    public Member(@NonNull String userId, String password, @NonNull String username, @NonNull String nickname, int gender, LocalDate birth, @NonNull String email, @NonNull String phoneNo, boolean isSocial, int zipcode, String street, String addressDetail, Role role, MemberImage memberImage) {
         this.userId = userId;
         this.password = password;
         this.username = username;
@@ -65,7 +64,6 @@ public class Member {
         this.email = email;
         this.phoneNo = phoneNo;
         this.isSocial = isSocial;
-        this.provider = provider;
         this.zipcode = zipcode;
         this.street = street;
         this.addressDetail = addressDetail;

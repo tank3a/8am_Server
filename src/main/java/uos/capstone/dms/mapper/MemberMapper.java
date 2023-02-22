@@ -17,6 +17,5 @@ public interface MemberMapper {
     @Mapping(target = "role", constant = "ROLE_USER")
     @Mapping(target = "memberImage", ignore = true)
     @Mapping(target = "isSocial", ignore = true)
-    @Mapping(target = "provider", ignore = true)
     Member joinRequestDTOToMember(MemberJoinRequestDTO memberJoinRequestDTO);
 }
