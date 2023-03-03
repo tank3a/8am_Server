@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import uos.capstone.dms.domain.ImageDTO;
-import uos.capstone.dms.domain.security.TokenDTO;
+import uos.capstone.dms.domain.token.TokenDTO;
 import uos.capstone.dms.domain.user.*;
 import uos.capstone.dms.mapper.MemberMapper;
 import uos.capstone.dms.repository.MemberImageRepository;
@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -32,8 +33,9 @@ public class MemberService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
     private final MemberImageRepository imageRepository;
-    private final AuthService authService;
+    private final TokenService tokenService;
     private final FileService fileService;
+    private final AuthService authService;
 
     @Value("${spring.servlet.multipart.location}")
     private String uploadPath;
@@ -46,7 +48,7 @@ public class MemberService implements UserDetailsService {
     }
 
     private UserDetails createUserDetails(Member member) {
-        GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(member.getRole().toString());
+        GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(member.getRoles().stream().map(Role::getType).collect(Collectors.joining(",")));
 
         return new User(
                 member.getUserId(),
@@ -55,30 +57,47 @@ public class MemberService implements UserDetailsService {
         );
     }
 
-    public MemberResponseDTO findMemberByEntityId(Long entityId) {
-        return memberRepository.findByEntityId(entityId)
-                .map(member -> MemberMapper.INSTANCE.toMemberResponseDTO(member))
-                .orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
+    public Member findMemberByUserId(String userId) {
+        return memberRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("해당 ID를 가진 사용자가 존재하지 않습니다."));
     }
 
-    public MemberResponseDTO findMemberByUserId(String userId) {
-        return memberRepository.findByUserId(userId)
-                .map(member -> MemberMapper.INSTANCE.toMemberResponseDTO(member))
-                .orElseThrow(() -> new RuntimeException("해당 ID를 가진 사용자가 존재하지 않습니다."));
+    public MemberDTO findMemberByEmail(String email) {
+        Member member = memberRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("해당 email을 가진 사용자가 존재하지 않습니다."));
+        return MemberMapper.INSTANCE.memberToMemberDTO(member);
     }
 
+    public MemberDTO getMember(String userId) {
+        return MemberMapper.INSTANCE.memberToMemberDTO(findMemberByUserId(userId));
+    }
+
+    @Transactional
+    public void saveMember(MemberDTO memberDTO) {
+        memberRepository.save(MemberMapper.INSTANCE.memberDTOToMember(memberDTO));
+    }
+
+    /**
+     * UsernamePasswordAuthenticationToken을 통한 Spring Security인증 진행
+     * 이후 tokenService에 userId값을 전달하여 토큰 생성
+     * @param requestDTO
+     * @return TokenDTO
+     */
     @Transactional
     public TokenDTO login(LoginRequestDTO requestDTO) {
-        return authService.createToken(requestDTO);
+        authService.authenticateLogin(requestDTO);
+
+        Member member = memberRepository.findByUserId(requestDTO.getUserId()).get();
+        MemberDTO memberDTO = MemberMapper.INSTANCE.memberToMemberDTO(member);
+        return tokenService.createToken(memberDTO);
     }
 
     @Transactional
-    public void signup(MemberJoinRequestDTO requestDTO) {
+    public void signup(MemberRequestDTO requestDTO) {
         if(memberRepository.existsByUserId(requestDTO.getUserId())) {
             throw new RuntimeException("이미 존재하는 아이디입니다.");
         }
 
-        Member member = MemberMapper.INSTANCE.joinRequestDTOToMember(requestDTO);
+        Member member = MemberMapper.INSTANCE.memberRequestDTOToMember(requestDTO);
+        member.updateRole(Role.ROLE_USER);
         memberRepository.save(member);
 
         if(!(requestDTO.getMemberImage() == null)) {
@@ -86,6 +105,16 @@ public class MemberService implements UserDetailsService {
             member.updateMemberImage(memberImage);
         }
 
+    }
+
+    public void updateMember(MemberRequestDTO memberRequestDTO, String userId) {
+        if(!memberRequestDTO.getUserId().equals(userId)) {
+            throw new RuntimeException("잘못된 접근입니다.");
+        }
+
+        Member member = MemberMapper.INSTANCE.memberRequestDTOToMember(memberRequestDTO);
+        member.updateRole(Role.ROLE_USER);
+        memberRepository.save(member);
     }
 
     @Transactional

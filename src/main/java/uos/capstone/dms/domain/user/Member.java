@@ -2,12 +2,11 @@ package uos.capstone.dms.domain.user;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+import uos.capstone.dms.domain.auth.Provider;
 
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -16,45 +15,31 @@ import java.util.Map;
 public class Member {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long entityId;
-
     @NonNull
     @Column(updatable = false, unique = true)
     private String userId;     //사용자 ID값
-
     private String password;
-
-    @NonNull
     private String username;
-
-    @NonNull
     private String nickname;
-
     private int gender;   //0기타 1남성 2여성
-
     private LocalDate birth;
-
     @NonNull
+    @Column(unique = true)
     private String email;
-
-    @NonNull
     private String phoneNo;
-
-    private boolean isSocial;
-
+    private boolean social;
+    @Enumerated(EnumType.STRING)
+    private Provider provider;
     private int zipcode;
     private String street;
     private String addressDetail;
-
     @Enumerated(EnumType.STRING)
-    private Role role;
-
+    private List<Role> roles;
     @OneToOne(fetch = FetchType.LAZY)
     private MemberImage memberImage;    //프로필 사진
 
     @Builder
-    public Member(@NonNull String userId, String password, @NonNull String username, @NonNull String nickname, int gender, LocalDate birth, @NonNull String email, @NonNull String phoneNo, boolean isSocial, int zipcode, String street, String addressDetail, Role role, MemberImage memberImage) {
+    public Member(@NonNull String userId, String password, String username, String nickname, int gender, LocalDate birth, @NonNull String email, String phoneNo, boolean social, Provider provider, int zipcode, String street, String addressDetail, List<Role> roles) {
         this.userId = userId;
         this.password = password;
         this.username = username;
@@ -63,16 +48,28 @@ public class Member {
         this.birth = birth;
         this.email = email;
         this.phoneNo = phoneNo;
-        this.isSocial = isSocial;
+        this.social = social;
+        this.provider = provider;
         this.zipcode = zipcode;
         this.street = street;
         this.addressDetail = addressDetail;
-        this.role = role;
-        this.memberImage = memberImage;
+        this.roles = roles;
     }
 
     public void updateMemberImage(MemberImage memberImage) {
         this.memberImage = memberImage;
     }
 
+    public void updateRole(Role role) {
+        if(this.roles == null) {
+            this.roles = new ArrayList<>();
+        }
+
+        if(this.roles.contains(role)) {
+            this.roles.remove(role);
+        }
+        else {
+            this.roles.add(role);
+        }
+    }
 }
