@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,6 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import uos.capstone.dms.repository.HttpCookieOAuth2AuthorizationRequestRepository;
 import uos.capstone.dms.security.handler.JwtAccessDeniedHandler;
 import uos.capstone.dms.security.handler.JwtAuthenticationEntryPoint;
 import uos.capstone.dms.security.handler.OAuth2SuccessHandler;
@@ -29,13 +31,14 @@ public class SecurityConfig {
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final CustomOAuth2UserService oAuth2UserService;
+    private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
 
     private static final String[] URL_TO_PERMIT = {
             "/member/login",
             "/member/signup",
             "/v3/api-docs/**",
             "/swagger-ui/**",
-            "/auth/**"
+            "/oauth2/**"
     };
 
     @Bean
@@ -66,15 +69,23 @@ public class SecurityConfig {
 
                 .and()      //인증 진행할 uri설정
                 .authorizeHttpRequests()
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(URL_TO_PERMIT).permitAll()
                 .anyRequest().authenticated();
 
         http
                 .oauth2Login()
-                        .successHandler(oAuth2SuccessHandler)
-                                .userInfoEndpoint().userService(oAuth2UserService);
+                .authorizationEndpoint().baseUri("/oauth2/authorization")
+                .authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository)
+                .and()
+                .redirectionEndpoint().baseUri("/login/oauth2/code/**")
+                .and()
+                .userInfoEndpoint().userService(oAuth2UserService)
+                .and()
+                .successHandler(oAuth2SuccessHandler);
 
-        http      //jwt필터를 usernamepassword인증 전에 실행
+
+        http
                 .addFilterBefore(new JwtRequestFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
 
