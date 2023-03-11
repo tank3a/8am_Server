@@ -11,7 +11,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import uos.capstone.dms.domain.security.TokenDTO;
+import uos.capstone.dms.domain.token.TokenDTO;
+import uos.capstone.dms.domain.user.Role;
 
 import java.security.Key;
 import java.time.Duration;
@@ -36,13 +37,14 @@ public class JwtTokenProvider {
 
     /**
      * accessToken과 refreshToken을 생성함
-     * @param authentication
+     * @param subject
      * @return TokenDTO
+     * subject는 Form Login방식의 경우 userId, Social Login방식의 경우 email
      */
-    public TokenDTO createTokenDTO(Authentication authentication) {
+    public TokenDTO createTokenDTO(String subject, List<Role> roles) {
 
         //권한을 하나의 String으로 합침
-        String roles = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(","));
+        String authority = roles.stream().map(Role::getType).collect(Collectors.joining(","));
 
         //토큰 생성시간
         Instant now = Instant.from(OffsetDateTime.now());
@@ -51,8 +53,8 @@ public class JwtTokenProvider {
 
         //accessToken 생성
         String accessToken = Jwts.builder()
-                .setSubject(authentication.getName())
-                .claim("roles", roles)
+                .setSubject(subject)
+                .claim("roles", authority)
                 .setExpiration(Date.from(now.plusMillis(accessTokenValidationTime)))
                 .signWith(encodedKey)
                 .compact();

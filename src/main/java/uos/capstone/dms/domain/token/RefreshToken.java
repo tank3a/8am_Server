@@ -1,11 +1,11 @@
-package uos.capstone.dms.domain.security;
+package uos.capstone.dms.domain.token;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import uos.capstone.dms.domain.user.Member;
 
 @Entity
 @Getter
@@ -13,13 +13,17 @@ import lombok.NoArgsConstructor;
 public class RefreshToken {
 
     @Id
-    private String userId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long tokenId;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    private Member member;
 
     private String token;
 
     @Builder
-    public RefreshToken(String userId, String token) {
-        this.userId = userId;
+    public RefreshToken(Member member, String token) {
+        this.member = member;
         this.token = token;
     }
 

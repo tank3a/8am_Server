@@ -9,10 +9,11 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import uos.capstone.dms.domain.security.TokenDTO;
+import uos.capstone.dms.domain.token.TokenDTO;
+import uos.capstone.dms.domain.token.TokenResponseDTO;
 import uos.capstone.dms.domain.user.LoginRequestDTO;
-import uos.capstone.dms.domain.user.MemberJoinRequestDTO;
-import uos.capstone.dms.domain.user.MemberResponseDTO;
+import uos.capstone.dms.domain.user.MemberRequestDTO;
+import uos.capstone.dms.domain.user.MemberDTO;
 import uos.capstone.dms.security.SecurityUtil;
 import uos.capstone.dms.service.MemberService;
 
@@ -28,16 +29,17 @@ public class MemberController {
 
     @Operation(summary = "회원가입")
     @PostMapping("/signup")
-    public ResponseEntity<String> memberSignup(@ModelAttribute MemberJoinRequestDTO memberJoinRequestDTO) {
-
-        memberJoinRequestDTO.setPassword(passwordEncoder.encode(memberJoinRequestDTO.getPassword()));
-        memberService.signup(memberJoinRequestDTO);
+    public ResponseEntity<String> memberSignup(@ModelAttribute MemberRequestDTO memberRequestDTO) {
+        log.info(memberRequestDTO);
+        memberRequestDTO.setPassword(passwordEncoder.encode(memberRequestDTO.getPassword()));
+        memberService.signup(memberRequestDTO);
         return new ResponseEntity<>("", HttpStatus.OK);
     }
 
     @Operation(summary = "로그인")
     @PostMapping("/login")
-    public ResponseEntity<String> memberLogin(@ModelAttribute LoginRequestDTO loginRequestDTO) {
+    public ResponseEntity<TokenResponseDTO> memberLogin(@ModelAttribute LoginRequestDTO loginRequestDTO) {
+        log.info(loginRequestDTO);
         TokenDTO tokenDTO = memberService.login(loginRequestDTO);
         ResponseCookie responseCookie = ResponseCookie
                 .from("refresh_token", tokenDTO.getRefreshToken())
@@ -48,12 +50,17 @@ public class MemberController {
                 .path("/")
                 .build();
 
-        return ResponseEntity.ok().header("Set-Cookie", responseCookie.toString()).body(tokenDTO.getAccessToken());
+        TokenResponseDTO tokenResponseDTO = TokenResponseDTO.builder()
+                .isNewMember(false)
+                .accessToken(tokenDTO.getAccessToken())
+                .build();
+
+        return ResponseEntity.ok().header("Set-Cookie", responseCookie.toString()).body(tokenResponseDTO);
     }
 
     @Operation(summary = "회원정보 호출")
     @GetMapping("/getMemberData")
-    public ResponseEntity<MemberResponseDTO> authenticate() {
-        return ResponseEntity.ok(memberService.findMemberByUserId(SecurityUtil.getCurrentUsername()));
+    public ResponseEntity<MemberDTO> loadMemberData() {
+        return ResponseEntity.ok(memberService.getMember(SecurityUtil.getCurrentUsername()));
     }
 }

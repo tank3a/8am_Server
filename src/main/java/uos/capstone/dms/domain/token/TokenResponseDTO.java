@@ -1,21 +1,16 @@
-package uos.capstone.dms.domain.security;
+package uos.capstone.dms.domain.token;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Duration;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TokenDTO {
+public class TokenResponseDTO {
 
-    private String tokenType;
     private String accessToken;
-    private String refreshToken;
-    private Duration duration;
-
+    private boolean isNewMember;
 }
