@@ -119,11 +119,6 @@ public class MemberService implements UserDetailsService {
 
     @Transactional
     private MemberImage saveMemberImage(MultipartFile file) {
-        if(file.getContentType().startsWith("image") == false) {
-            log.warn("이미지 파일이 아닙니다.");
-            return null;
-        }
-
         String originalName = file.getOriginalFilename();
         Path root = Paths.get(uploadPath, "member");
 
