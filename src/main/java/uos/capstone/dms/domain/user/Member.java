@@ -30,7 +30,7 @@ public class Member {
     private boolean social;
     @Enumerated(EnumType.STRING)
     private Provider provider;
-    private int zipcode;
+    private String zipcode;
     private String street;
     private String addressDetail;
     @Enumerated(EnumType.STRING)
@@ -39,7 +39,7 @@ public class Member {
     private MemberImage memberImage;    //프로필 사진
 
     @Builder
-    public Member(@NonNull String userId, String password, String username, String nickname, int gender, LocalDate birth, @NonNull String email, String phoneNo, boolean social, Provider provider, int zipcode, String street, String addressDetail, List<Role> roles) {
+    public Member(@NonNull String userId, String password, String username, String nickname, int gender, LocalDate birth, @NonNull String email, String phoneNo, boolean social, Provider provider, String zipcode, String street, String addressDetail, List<Role> roles) {
         this.userId = userId;
         this.password = password;
         this.username = username;

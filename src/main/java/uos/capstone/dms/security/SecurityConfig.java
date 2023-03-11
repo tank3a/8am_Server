@@ -14,11 +14,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import uos.capstone.dms.repository.HttpCookieOAuth2AuthorizationRequestRepository;
 import uos.capstone.dms.security.handler.JwtAccessDeniedHandler;
 import uos.capstone.dms.security.handler.JwtAuthenticationEntryPoint;
-import uos.capstone.dms.security.handler.OAuth2SuccessHandler;
-import uos.capstone.dms.service.CustomOAuth2UserService;
 
 @Configuration
 @EnableWebSecurity
@@ -29,16 +26,14 @@ public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
-    private final OAuth2SuccessHandler oAuth2SuccessHandler;
-    private final CustomOAuth2UserService oAuth2UserService;
-    private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
 
     private static final String[] URL_TO_PERMIT = {
             "/member/login",
             "/member/signup",
             "/v3/api-docs/**",
             "/swagger-ui/**",
-            "/oauth2/**"
+            "/oauth2/**",
+            "/api/**"
     };
 
     @Bean
@@ -74,20 +69,7 @@ public class SecurityConfig {
                 .anyRequest().authenticated();
 
         http
-                .oauth2Login()
-                .authorizationEndpoint().baseUri("/oauth2/authorization")
-                .authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository)
-                .and()
-                .redirectionEndpoint().baseUri("/login/oauth2/code/**")
-                .and()
-                .userInfoEndpoint().userService(oAuth2UserService)
-                .and()
-                .successHandler(oAuth2SuccessHandler);
-
-
-        http
                 .addFilterBefore(new JwtRequestFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
-
 
 
         log.info("securityConfig");

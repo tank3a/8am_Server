@@ -11,7 +11,6 @@ import java.util.Map;
 public class OAuth2Attribute {
 
     private String provider;
-    private Map<String, Object> attributes;
     private String userId;
     private String username;
     private String email;
@@ -32,20 +31,9 @@ public class OAuth2Attribute {
 
         return OAuth2Attribute.builder()
                 .provider(provider)
-                .attributes(attributes)
                 .username(String.valueOf(attributes.get("name")))
                 .email(String.valueOf(attributes.get("email")))
-                .userId(String.valueOf(attributes.get(usernameAttributeName)))
+                .userId(String.valueOf(attributes.get(usernameAttributeName)).concat("google"))
                 .build();
-    }
-
-    public Map<String, Object> mapAttribute() {
-        Map<String, Object> map = new HashMap<>();
-        map.put("userId", userId);
-        map.put("username", username);
-        map.put("email", email);
-        map.put("provider", provider);
-
-        return map;
     }
 }

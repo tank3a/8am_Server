@@ -23,7 +23,7 @@ public class MemberRequestDTO {
     private LocalDate birth;
     private String email;
     private String phoneNo;
-    private int zipcode;
+    private String zipcode;
     private String street;
     private String addressDetail;
     private MultipartFile memberImage;
