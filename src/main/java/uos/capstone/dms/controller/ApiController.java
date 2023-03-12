@@ -5,9 +5,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.json.simple.parser.ParseException;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uos.capstone.dms.domain.token.TokenDTO;
+import uos.capstone.dms.domain.token.TokenResponseDTO;
 import uos.capstone.dms.domain.user.MemberDTO;
 import uos.capstone.dms.service.OAuth2UserService;
 import uos.capstone.dms.service.TokenService;
@@ -29,9 +31,24 @@ public class ApiController {
 
     @Operation(summary = "구글 소셜 로그인")
     @GetMapping("/oauth2/google")
-    public ResponseEntity<MemberDTO> oauth2Google(@RequestParam("id_token") String idToken) throws ParseException, JsonProcessingException {
+    public ResponseEntity<TokenResponseDTO> oauth2Google(@RequestParam("id_token") String idToken) throws ParseException, JsonProcessingException {
         MemberDTO memberDTO = oAuth2UserService.findOrSaveMember(idToken, "google");
+        TokenDTO tokenDTO = tokenService.createToken(memberDTO);
 
-        return ResponseEntity.ok(memberDTO);
+        ResponseCookie responseCookie = ResponseCookie
+                .from("refresh_token", tokenDTO.getRefreshToken())
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .maxAge(tokenDTO.getDuration())
+                .path("/")
+                .build();
+
+        TokenResponseDTO tokenResponseDTO = TokenResponseDTO.builder()
+                .isNewMember(false)
+                .accessToken(tokenDTO.getAccessToken())
+                .build();
+
+        return ResponseEntity.ok().header("Set-Cookie", responseCookie.toString()).body(tokenResponseDTO);
     }
 }
