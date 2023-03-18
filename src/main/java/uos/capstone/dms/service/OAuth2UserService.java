@@ -16,9 +16,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 import uos.capstone.dms.domain.auth.OAuth2Attribute;
 import uos.capstone.dms.domain.auth.Provider;
 import uos.capstone.dms.domain.user.MemberDTO;
+import uos.capstone.dms.domain.user.Role;
 import uos.capstone.dms.mapper.MemberMapper;
 import uos.capstone.dms.repository.MemberRepository;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -40,12 +43,16 @@ public class OAuth2UserService {
 
         return memberRepository.findByEmail(oAuth2Attribute.getEmail()).map(member -> MemberMapper.INSTANCE.memberToMemberDTO(member))
                 .orElseGet(() -> {
+                    List<Role> roles = new ArrayList<>();
+                    roles.add(Role.ROLE_USER);
+
                     MemberDTO memberDTO = MemberDTO.builder()
                             .userId(oAuth2Attribute.getUserId())
                             .email(oAuth2Attribute.getEmail())
                             .social(true)
-                            .provider(Provider.valueOf(provider))
+                            .provider(Provider.of(provider))
                             .username(oAuth2Attribute.getUsername())
+                            .roles(roles)
                             .build();
 
                     memberRepository.save(MemberMapper.INSTANCE.memberDTOToMember(memberDTO));

@@ -30,7 +30,6 @@ public class MemberController {
     @Operation(summary = "회원가입")
     @PostMapping("/signup")
     public ResponseEntity<String> memberSignup(@ModelAttribute MemberRequestDTO memberRequestDTO) {
-        log.info(memberRequestDTO);
         memberRequestDTO.setPassword(passwordEncoder.encode(memberRequestDTO.getPassword()));
         memberService.signup(memberRequestDTO);
         return new ResponseEntity<>("", HttpStatus.OK);

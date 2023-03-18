@@ -19,7 +19,7 @@ public class MemberDTO {
     private LocalDate birth;
     private String email;
     private String phoneNo;
-    private int zipcode;
+    private String zipcode;
     private boolean social;
     private Provider provider;
     private String street;
@@ -28,7 +28,7 @@ public class MemberDTO {
     private List<Role> roles;
 
     @Builder
-    public MemberDTO(String userId, String username, String nickname, int gender, LocalDate birth, String email, String phoneNo, int zipcode, boolean social, Provider provider, String street, String addressDetail, MemberImage memberImage, List<Role> roles) {
+    public MemberDTO(String userId, String username, String nickname, int gender, LocalDate birth, String email, String phoneNo, String zipcode, boolean social, Provider provider, String street, String addressDetail, MemberImage memberImage, List<Role> roles) {
         this.userId = userId;
         this.username = username;
         this.nickname = nickname;

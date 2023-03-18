@@ -11,7 +11,6 @@ import java.util.List;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@ToString(exclude = {"memberImage"})
 public class Member {
 
     @Id
@@ -35,7 +34,7 @@ public class Member {
     private String addressDetail;
     @Enumerated(EnumType.STRING)
     private List<Role> roles;
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     private MemberImage memberImage;    //프로필 사진
 
     @Builder

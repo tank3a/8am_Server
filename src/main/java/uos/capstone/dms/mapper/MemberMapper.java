@@ -14,7 +14,10 @@ public interface MemberMapper {
 
     MemberDTO memberToMemberDTO(Member member);
 
+    @Mapping(target = "password", ignore = true)
     Member memberDTOToMember(MemberDTO memberDTO);
 
+    @Mapping(target = "social", ignore = true)
+    @Mapping(target = "provider", ignore = true)
     Member memberRequestDTOToMember(MemberRequestDTO memberRequestDTO);
 }

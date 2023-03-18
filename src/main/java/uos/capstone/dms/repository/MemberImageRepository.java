@@ -1,4 +1,4 @@
 package uos.capstone.dms.repository;
 
-public interface MemberImageRepository extends ImageRepository{
+public interface MemberImageRepository extends ImageRepository {
 }
