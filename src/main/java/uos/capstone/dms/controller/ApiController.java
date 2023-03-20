@@ -8,9 +8,11 @@ import org.json.simple.parser.ParseException;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uos.capstone.dms.domain.pet.BreedInput;
 import uos.capstone.dms.domain.token.TokenDTO;
 import uos.capstone.dms.domain.token.TokenResponseDTO;
 import uos.capstone.dms.domain.user.MemberDTO;
+import uos.capstone.dms.service.BreedService;
 import uos.capstone.dms.service.OAuth2UserService;
 import uos.capstone.dms.service.TokenService;
 
@@ -50,5 +52,11 @@ public class ApiController {
                 .build();
 
         return ResponseEntity.ok().header("Set-Cookie", responseCookie.toString()).body(tokenResponseDTO);
+    }
+
+    private final BreedService breedService;
+    @PostMapping("/insertBreed")
+    public void insertBreed(@ModelAttribute BreedInput input) {
+        breedService.insertBreed(input);
     }
 }
