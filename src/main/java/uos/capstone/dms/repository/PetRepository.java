@@ -14,5 +14,6 @@ public interface PetRepository extends JpaRepository<PetDog, PetId> {
 
     List<PetDog> findAllByMember(Member member);
 
+    //쿼리 수정해서 memberId만 가져가게 바꿔야함
     boolean existsByNameAndMember(@Param("name") String name, @Param("member") Member member);
 }

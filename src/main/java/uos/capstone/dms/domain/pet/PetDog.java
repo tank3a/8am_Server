@@ -5,8 +5,6 @@ import lombok.*;
 import uos.capstone.dms.domain.user.Member;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -34,8 +32,10 @@ public class PetDog {
     private int obesity;
     private int calorieGoal;
 
+    private Long profileImageId;
+
     @Builder
-    public PetDog(String petId, Member member, String name, LocalDate birth, int gender, Breed breed, double weight, int calorieGoal) {
+    public PetDog(String petId, Member member, String name, LocalDate birth, int gender, Breed breed, double weight, int calorieGoal, Long profileImageId) {
         this.petId = petId;
         this.member = member;
         this.name = name;
@@ -44,6 +44,7 @@ public class PetDog {
         this.breed = breed;
         this.weight = weight;
         this.calorieGoal = calorieGoal;
+        this.profileImageId = profileImageId;
     }
 
     public void setObesity(int rate) {
@@ -52,5 +53,9 @@ public class PetDog {
 
     public void setBreed(Breed breed){
         this.breed = breed;
+    }
+
+    public void setProfileImageId(Long id) {
+        this.profileImageId = id;
     }
 }
