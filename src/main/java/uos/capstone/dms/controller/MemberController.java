@@ -35,6 +35,7 @@ public class MemberController {
         return new ResponseEntity<>("", HttpStatus.OK);
     }
 
+    //social여부 체크해야함
     @Operation(summary = "로그인")
     @PostMapping("/login")
     public ResponseEntity<TokenResponseDTO> memberLogin(@ModelAttribute LoginRequestDTO loginRequestDTO) {
@@ -61,5 +62,17 @@ public class MemberController {
     @GetMapping("/getMemberData")
     public ResponseEntity<MemberDTO> loadMemberData() {
         return ResponseEntity.ok(memberService.getMember(SecurityUtil.getCurrentUsername()));
+    }
+
+    @Operation(summary = "회원정보 수정")
+    @PostMapping("/modify")
+    public ResponseEntity memberModify(@ModelAttribute MemberRequestDTO memberRequestDTO) {
+        if(SecurityUtil.getCurrentUsername() != memberRequestDTO.getUserId()) {
+            log.warn("잘못된 회원 ID로 접근하였습니다.");
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+
+        memberService.updateMember(memberRequestDTO, memberRequestDTO.getUserId());
+        return new ResponseEntity(HttpStatus.OK);
     }
 }
