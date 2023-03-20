@@ -33,7 +33,8 @@ public class SecurityConfig {
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/oauth2/**",
-            "/api/**"
+            "/api/**",
+            "/pet/getBreedPage"
     };
 
     @Bean
