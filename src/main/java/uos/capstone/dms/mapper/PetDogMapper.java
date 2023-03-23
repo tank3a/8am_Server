@@ -22,7 +22,7 @@ public interface PetDogMapper {
     @Mapping(target = "member", source = "member")
     @Mapping(target = "birth", source = "petDogRegisterDTO.birth")
     @Mapping(target = "gender", source = "petDogRegisterDTO.gender")
-    @Mapping(target = "petId", expression = "java(petDogRegisterDTO.generatePetId())")
+    @Mapping(target = "petId", source = "petDogRegisterDTO.petId")
     PetDog registerDTOToPetDog(PetDogRegisterDTO petDogRegisterDTO, Member member);
 
 }

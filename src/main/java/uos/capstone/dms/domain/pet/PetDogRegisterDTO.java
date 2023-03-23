@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class PetDogRegisterDTO {
 
+    private String petId;
     private String name;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -24,9 +25,4 @@ public class PetDogRegisterDTO {
     private long breedId;
     private double weight;
     private MultipartFile petDogImage;
-
-    public String generatePetId() {
-        LocalDateTime time = LocalDateTime.now();
-        return time.toString().concat(this.name);
-    }
 }

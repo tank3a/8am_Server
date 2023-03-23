@@ -67,7 +67,7 @@ public class MemberController {
     @Operation(summary = "회원정보 수정")
     @PostMapping("/modify")
     public ResponseEntity memberModify(@ModelAttribute MemberRequestDTO memberRequestDTO) {
-        if(SecurityUtil.getCurrentUsername() != memberRequestDTO.getUserId()) {
+        if(!SecurityUtil.getCurrentUsername().equals(memberRequestDTO.getUserId())) {
             log.warn("잘못된 회원 ID로 접근하였습니다.");
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }

@@ -108,17 +108,26 @@ public class MemberService implements UserDetailsService {
 
     }
 
+    @Transactional(readOnly = false)
     public void updateMember(MemberRequestDTO memberRequestDTO, String userId) {
         if(!memberRequestDTO.getUserId().equals(userId)) {
             throw new RuntimeException("잘못된 접근입니다.");
         }
 
+        log.info(memberRequestDTO);
+
         Member member = MemberMapper.INSTANCE.memberRequestDTOToMember(memberRequestDTO);
         member.updateRole(Role.ROLE_USER);
+
+        if(!(memberRequestDTO.getMemberImage() == null)) {
+            MemberImage memberImage = saveMemberImage(memberRequestDTO.getMemberImage());
+            member.updateMemberImage(memberImage);
+        }
+
         memberRepository.save(member);
     }
 
-    @Transactional
+    @Transactional(readOnly = false)
     private MemberImage saveMemberImage(MultipartFile file) {
         String originalName = file.getOriginalFilename();
         Path root = Paths.get(uploadPath, "member");
