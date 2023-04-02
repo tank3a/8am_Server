@@ -2,16 +2,23 @@ package uos.capstone.dms.domain.user;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.domain.Persistable;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import uos.capstone.dms.domain.auth.Provider;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Member {
+@EntityListeners(AuditingEntityListener.class)
+@DynamicUpdate
+public class Member implements Persistable<String> {
 
     @Id
     @NonNull
@@ -34,11 +41,16 @@ public class Member {
     private String addressDetail;
     @Enumerated(EnumType.STRING)
     private List<Role> roles;
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private MemberImage memberImage;    //프로필 사진
 
+    @CreatedDate
+    @Column(updatable = false)
+    @NonNull
+    private LocalDateTime createdDate;
+
     @Builder
-    public Member(@NonNull String userId, String password, String username, String nickname, int gender, LocalDate birth, @NonNull String email, String phoneNo, boolean social, Provider provider, String zipcode, String street, String addressDetail, List<Role> roles) {
+    public Member(@NonNull String userId, String password, String username, String nickname, int gender, LocalDate birth, @NonNull String email, String phoneNo, boolean social, Provider provider, String zipcode, String street, String addressDetail, List<Role> roles, LocalDateTime createdDate) {
         this.userId = userId;
         this.password = password;
         this.username = username;
@@ -53,6 +65,7 @@ public class Member {
         this.street = street;
         this.addressDetail = addressDetail;
         this.roles = roles;
+        this.createdDate = createdDate;
     }
 
     public void updateMemberImage(MemberImage memberImage) {
@@ -70,5 +83,24 @@ public class Member {
         else {
             this.roles.add(role);
         }
+    }
+
+    public void updateSocial(Provider provider) {
+        this.social = true;
+        this.provider = provider;
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
+    @Override
+    public String getId() {
+        return userId;
+    }
+
+    @Override
+    public boolean isNew() {
+        return createdDate == null;
     }
 }
