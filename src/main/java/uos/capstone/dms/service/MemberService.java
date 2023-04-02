@@ -57,8 +57,10 @@ public class MemberService implements UserDetailsService {
         );
     }
 
+    //이미지를 eager로 불러옴
     public Member findMemberByUserId(String userId) {
-        return memberRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("해당 ID를 가진 사용자가 존재하지 않습니다."));
+        return memberRepository.findByUserIdEagerLoadImage(userId)
+                .orElseThrow(() -> new RuntimeException("해당 ID를 가진 사용자가 존재하지 않습니다."));
     }
 
     public MemberDTO findMemberByEmail(String email) {
@@ -86,11 +88,10 @@ public class MemberService implements UserDetailsService {
         authService.authenticateLogin(requestDTO);
 
         Member member = memberRepository.findByUserId(requestDTO.getUserId()).get();
-        MemberDTO memberDTO = MemberMapper.INSTANCE.memberToMemberDTO(member);
-        return tokenService.createToken(memberDTO);
+        return tokenService.createToken(member);
     }
 
-    @Transactional
+    @Transactional(readOnly = false)
     public void signup(MemberRequestDTO requestDTO) {
         if(memberRepository.existsByUserId(requestDTO.getUserId())) {
             throw new RuntimeException("이미 존재하는 아이디입니다.");
@@ -110,21 +111,39 @@ public class MemberService implements UserDetailsService {
 
     @Transactional(readOnly = false)
     public void updateMember(MemberRequestDTO memberRequestDTO, String userId) {
-        if(!memberRequestDTO.getUserId().equals(userId)) {
-            throw new RuntimeException("잘못된 접근입니다.");
+
+        Member member = memberRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
+
+        //중복가입  에러해결필요
+        if(member.isSocial()) {
+            if(!memberRequestDTO.getEmail().equals(member.getEmail())) {
+                throw new RuntimeException("소셜회원은 이메일 변경이 불가합니다.");
+            }
         }
 
-        log.info(memberRequestDTO);
-
-        Member member = MemberMapper.INSTANCE.memberRequestDTOToMember(memberRequestDTO);
-        member.updateRole(Role.ROLE_USER);
+        if((member.getMemberImage() != null) && (memberRequestDTO.getMemberImage() != null)) {
+            imageRepository.deleteById(member.getMemberImage().getId());
+        }
+        MemberDTO memberDTO = MemberMapper.INSTANCE.requestDTOToMemberDTO(memberRequestDTO);
+        memberDTO.setRoles(member.getRoles());
+        memberDTO.setCreatedDate(member.getCreatedDate());
+        memberDTO.setSocial(member.isSocial());
+        memberDTO.setProvider(member.getProvider());
 
         if(!(memberRequestDTO.getMemberImage() == null)) {
             MemberImage memberImage = saveMemberImage(memberRequestDTO.getMemberImage());
-            member.updateMemberImage(memberImage);
+            memberDTO.setMemberImage(memberImage);
         }
 
-        memberRepository.save(member);
+        Member updatedMember = MemberMapper.INSTANCE.memberDTOToMember(memberDTO);
+        if(memberRequestDTO.getPassword() == null) {
+            updatedMember.updatePassword(memberRequestDTO.getPassword());
+        }
+        else {
+            updatedMember.updatePassword(member.getPassword());
+        }
+
+        memberRepository.save(updatedMember);
     }
 
     @Transactional(readOnly = false)

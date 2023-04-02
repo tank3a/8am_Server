@@ -71,8 +71,8 @@ public class MemberController {
             log.warn("잘못된 회원 ID로 접근하였습니다.");
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
-
-        memberService.updateMember(memberRequestDTO, memberRequestDTO.getUserId());
+        memberRequestDTO.setPassword(passwordEncoder.encode(memberRequestDTO.getPassword()));
+        memberService.updateMember(memberRequestDTO, SecurityUtil.getCurrentUsername());
         return new ResponseEntity(HttpStatus.OK);
     }
 }
