@@ -12,6 +12,7 @@ import uos.capstone.dms.domain.user.Member;
 import uos.capstone.dms.mapper.PetDogMapper;
 import uos.capstone.dms.repository.MemberRepository;
 import uos.capstone.dms.repository.PetImageRepository;
+import uos.capstone.dms.repository.PetOwnRepository;
 import uos.capstone.dms.repository.PetRepository;
 import uos.capstone.dms.security.SecurityUtil;
 
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 public class PetService {
 
     private final PetRepository petRepository;
+    private final PetOwnRepository petOwnRepository;
     private final FileService fileService;
     private final PetImageRepository imageRepository;
     private final BreedService breedService;
@@ -36,43 +38,50 @@ public class PetService {
     private String uploadPath;
 
     public List<PetDogDTO> loadMemberPets(String userId) {
-        Member member = memberRepository.findByUserId(userId).get();
-        List<PetDog> petDogs = petRepository.findAllByMember(member);
+        List<PetDog> petDogs = petOwnRepository.findAllByMember(userId);
 
         return petDogs.stream()
-                .map(petDog ->
-                    PetDogMapper.INSTANCE.petDogToPetDogDTO(
-                            petDog,
-                            imageRepository.findByImageId(petDog.getProfileImageId())
-                    )
-                )
+                .map(petDog -> PetDogMapper.INSTANCE.petDogToPetDogDTO(petDog))
                 .collect(Collectors.toList());
     }
 
+    //여기에 주인인지 여부 체크해야함
     public List<PetImageDTO> loadPetImages(String petId) {
-        return imageRepository.findAllPetImages(SecurityUtil.getCurrentUsername(), petId);
+        return imageRepository.findAllPetImages(petId).stream()
+                .map(petImage -> PetDogMapper.INSTANCE.petImageToPetImageDTO(petImage))
+                .collect(Collectors.toList());
     }
 
 
+    @Transactional
     public PetDogDTO registerPet(PetDogRegisterDTO petDogRegisterDTO) {
         String userId = SecurityUtil.getCurrentUsername();
         Member member = memberRepository.findByUserId(userId).get();
-        if(petRepository.existsByNameAndMember(petDogRegisterDTO.getName(), member)) {
-            throw new RuntimeException("이미 존재하는 이름입니다. 다른 이름으로 지어주세요");
+        if(petRepository.existsById(petDogRegisterDTO.getPetId())) {
+            throw new RuntimeException("이미 등록된 애완견입니다.");
         }
 
-        PetDog petDog = PetDogMapper.INSTANCE.registerDTOToPetDog(petDogRegisterDTO, member);
+        PetDog petDog = PetDogMapper.INSTANCE.registerDTOToPetDog(petDogRegisterDTO);
         Breed breed = breedService.getBreed(petDogRegisterDTO.getBreedId()).orElseThrow(() -> new RuntimeException("잘못된 매개변수입니다: Breed ID"));
         petDog.setBreed(breed);
         petRepository.save(petDog);
 
         if(petDogRegisterDTO.getPetDogImage() != null) {
             PetImage petImage = savePetImage(petDogRegisterDTO.getPetDogImage(), petDog);
-            petDog.setProfileImageId(petImage.getId());
+            petDog.setProfileImage(petImage);
             petRepository.save(petDog);
         }
 
-        return PetDogMapper.INSTANCE.petDogToPetDogDTO(petDog, imageRepository.findByImageId(petDog.getProfileImageId()));
+        PetOwner petOwner = PetOwner.builder()
+                .isOwner(true)
+                .member(member)
+                .petDog(petDog)
+                .expireDateTime(null)
+                .build();
+
+        petOwnRepository.save(petOwner);
+
+        return PetDogMapper.INSTANCE.petDogToPetDogDTO(petDog);
     }
 
     @Transactional
