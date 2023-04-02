@@ -11,15 +11,11 @@ import lombok.*;
 public class Breed {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String breedName;
-    @OneToOne
-    private BreedImage image;
 
     @Builder
-    public Breed(String breedName, BreedImage image) {
+    public Breed(String breedName) {
         this.breedName = breedName;
-        this.image = image;
     }
 }

@@ -11,6 +11,4 @@ public class BreedDTO {
 
     private long id;
     private String breedName;
-    private BreedImage image;
-
 }
