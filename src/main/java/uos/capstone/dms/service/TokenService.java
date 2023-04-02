@@ -32,6 +32,18 @@ public class TokenService {
         return tokenDTO;
     }
 
+    public TokenDTO createToken(Member member) {
+        TokenDTO tokenDTO = tokenProvider.createTokenDTO(member.getUserId(), member.getRoles());
+        RefreshToken refreshToken = RefreshToken.builder()
+                .member(member)
+                .token(tokenDTO.getRefreshToken())
+                .build();
+
+        refreshTokenRepository.save(refreshToken);
+
+        return tokenDTO;
+    }
+
     public TokenDTO refresh(TokenDTO tokenDTO) {
         if(!tokenProvider.validateToken(tokenDTO.getRefreshToken())) {
             throw new RuntimeException("Refresh Token이 유효하지 않습니다.");

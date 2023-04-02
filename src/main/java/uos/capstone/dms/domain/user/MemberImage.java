@@ -11,7 +11,4 @@ import uos.capstone.dms.domain.Image;
 @SuperBuilder
 public class MemberImage extends Image {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 }

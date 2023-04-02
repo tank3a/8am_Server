@@ -20,4 +20,9 @@ public interface MemberMapper {
     @Mapping(target = "social", ignore = true)
     @Mapping(target = "provider", ignore = true)
     Member memberRequestDTOToMember(MemberRequestDTO memberRequestDTO);
+
+    @Mapping(target = "social", ignore = true)
+    @Mapping(target = "provider", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
+    MemberDTO requestDTOToMemberDTO(MemberRequestDTO memberRequestDTO);
 }
