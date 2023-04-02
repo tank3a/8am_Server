@@ -8,13 +8,13 @@ import org.json.simple.parser.ParseException;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import uos.capstone.dms.domain.pet.BreedInput;
 import uos.capstone.dms.domain.token.TokenDTO;
 import uos.capstone.dms.domain.token.TokenResponseDTO;
 import uos.capstone.dms.domain.user.MemberDTO;
-import uos.capstone.dms.service.BreedService;
 import uos.capstone.dms.service.OAuth2UserService;
 import uos.capstone.dms.service.TokenService;
+
+import java.util.Map;
 
 @RestController
 @Log4j2
@@ -34,8 +34,8 @@ public class ApiController {
     @Operation(summary = "구글 소셜 로그인")
     @GetMapping("/oauth2/google")
     public ResponseEntity<TokenResponseDTO> oauth2Google(@RequestParam("id_token") String idToken) throws ParseException, JsonProcessingException {
-        MemberDTO memberDTO = oAuth2UserService.findOrSaveMember(idToken, "google");
-        TokenDTO tokenDTO = tokenService.createToken(memberDTO);
+        Map<String, Object> memberMap =  oAuth2UserService.findOrSaveMember(idToken, "google");
+        TokenDTO tokenDTO = tokenService.createToken((MemberDTO) memberMap.get("dto"));
 
         ResponseCookie responseCookie = ResponseCookie
                 .from("refresh_token", tokenDTO.getRefreshToken())
@@ -51,12 +51,7 @@ public class ApiController {
                 .accessToken(tokenDTO.getAccessToken())
                 .build();
 
-        return ResponseEntity.ok().header("Set-Cookie", responseCookie.toString()).body(tokenResponseDTO);
+        return ResponseEntity.status((Integer) memberMap.get("status")).header("Set-Cookie", responseCookie.toString()).body(tokenResponseDTO);
     }
 
-    private final BreedService breedService;
-    @PostMapping("/insertBreed")
-    public void insertBreed(@ModelAttribute BreedInput input) {
-        breedService.insertBreed(input);
-    }
 }
