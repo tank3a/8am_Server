@@ -2,24 +2,19 @@ package uos.capstone.dms.domain.pet;
 
 import jakarta.persistence.*;
 import lombok.*;
-import uos.capstone.dms.domain.user.Member;
 
 import java.time.LocalDate;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@IdClass(PetId.class)
 @AllArgsConstructor
+@ToString(exclude = {"profileImage"})
 public class PetDog {
 
+    //애완견 등록번호로
     @Id
-    private String petId;
-
-    @Id
-    @ManyToOne
-    @JoinColumn(name = "member")
-    private Member member;
+    private Long petId;
 
     private String name;
     private LocalDate birth;
@@ -32,19 +27,19 @@ public class PetDog {
     private int obesity;
     private int calorieGoal;
 
-    private Long profileImageId;
+    @OneToOne
+    private PetImage profileImage;
 
     @Builder
-    public PetDog(String petId, Member member, String name, LocalDate birth, int gender, Breed breed, double weight, int calorieGoal, Long profileImageId) {
+    public PetDog(Long petId, String name, LocalDate birth, int gender, Breed breed, double weight, int calorieGoal, PetImage profileImage) {
         this.petId = petId;
-        this.member = member;
         this.name = name;
         this.birth = birth;
         this.gender = gender;
         this.breed = breed;
         this.weight = weight;
         this.calorieGoal = calorieGoal;
-        this.profileImageId = profileImageId;
+        this.profileImage = profileImage;
     }
 
     public void setObesity(int rate) {
@@ -55,7 +50,7 @@ public class PetDog {
         this.breed = breed;
     }
 
-    public void setProfileImageId(Long id) {
-        this.profileImageId = id;
+    public void setProfileImage(PetImage image) {
+        this.profileImage = image;
     }
 }

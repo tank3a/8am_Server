@@ -3,8 +3,6 @@ package uos.capstone.dms.domain.pet;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @Builder
@@ -12,14 +10,13 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PetDogDTO {
 
-    private String petId;
+    private Long petId;
     private String name;
     private LocalDate birth;
     private int gender;
-    private Long breedId;
+    private Breed breed;
     private double weight;
     private int obesity;
     private int calorieGoal;
     private PetImageDTO profileImage;
-
 }

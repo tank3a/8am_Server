@@ -8,14 +8,13 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
 @Builder
 @AllArgsConstructor
 public class PetDogRegisterDTO {
 
-    private String petId;
+    private Long petId;
     private String name;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")

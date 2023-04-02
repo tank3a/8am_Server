@@ -10,16 +10,14 @@ public class PetImageDTO {
     private String uuid;
     private String fileName;
     private String fileUrl;
-    private String memberId;
     private String petId;
 
     @Builder
-    public PetImageDTO(Long id, String uuid, String fileName, String fileUrl, String memberId, String petId) {
+    public PetImageDTO(Long id, String uuid, String fileName, String fileUrl, String petId) {
         this.id = id;
         this.uuid = uuid;
         this.fileName = fileName;
         this.fileUrl = fileUrl;
-        this.memberId = memberId;
         this.petId = petId;
     }
 }
