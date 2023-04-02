@@ -2,7 +2,6 @@ package uos.capstone.dms.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import uos.capstone.dms.domain.pet.*;
 import uos.capstone.dms.security.SecurityUtil;
@@ -28,16 +27,12 @@ public class PetController {
         return PetListResponse.builder().petList(petService.loadMemberPets(userId)).build();
     }
 
-    //breedResponse값을 총 페이지수로 변경해야함
-    @GetMapping("/getBreedPage")
-    public BreedListResponse getBreedList(Pageable pageable) {
-        List<BreedDTO> breedList = breedService.getBreedList(pageable);
+    @GetMapping("/getBreedList")
+    public List<BreedDTO> getBreedList() {
+        List<BreedDTO> breedList = breedService.getBreedList();
 
 
-        return BreedListResponse.builder()
-                .currentPage(pageable.getPageNumber())
-                .breedList(breedList)
-                .build();
+        return breedList;
     }
 
     @PostMapping("/dog/register")

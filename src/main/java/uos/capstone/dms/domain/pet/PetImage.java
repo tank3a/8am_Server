@@ -15,14 +15,6 @@ import uos.capstone.dms.domain.Image;
 @ToString
 public class PetImage extends Image {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @ManyToOne
-    @JoinColumns(value = {
-            @JoinColumn(name = "member_id", referencedColumnName = "member"),
-            @JoinColumn(name = "pet_id", referencedColumnName = "petId")
-    })
+    @ManyToOne(fetch = FetchType.LAZY)
     private PetDog petDog;
 }

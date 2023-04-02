@@ -13,16 +13,11 @@ public interface PetDogMapper {
 
     BreedDTO breedToBreedDTO(Breed breed);
 
-    @Mapping(target = "profileImage", source = "petImageDTO")
-    @Mapping(target = "breedId", expression = "java(petDog.getBreed().getId())")
-    @Mapping(target = "petId", source = "petDog.petId")
-    PetDogDTO petDogToPetDogDTO(PetDog petDog, PetImageDTO petImageDTO);
+    PetDogDTO petDogToPetDogDTO(PetDog petDog);
 
     @Mapping(target = "breed", ignore = true)
-    @Mapping(target = "member", source = "member")
-    @Mapping(target = "birth", source = "petDogRegisterDTO.birth")
-    @Mapping(target = "gender", source = "petDogRegisterDTO.gender")
-    @Mapping(target = "petId", source = "petDogRegisterDTO.petId")
-    PetDog registerDTOToPetDog(PetDogRegisterDTO petDogRegisterDTO, Member member);
+    PetDog registerDTOToPetDog(PetDogRegisterDTO petDogRegisterDTO);
 
+    @Mapping(target = "petId", source = "petImage.petDog.petId")
+    PetImageDTO petImageToPetImageDTO(PetImage petImage);
 }
