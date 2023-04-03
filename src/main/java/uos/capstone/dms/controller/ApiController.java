@@ -53,5 +53,4 @@ public class ApiController {
 
         return ResponseEntity.status((Integer) memberMap.get("status")).header("Set-Cookie", responseCookie.toString()).body(tokenResponseDTO);
     }
-
 }

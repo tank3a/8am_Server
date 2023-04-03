@@ -8,6 +8,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import uos.capstone.dms.domain.auth.OAuth2Attribute;
@@ -27,6 +28,7 @@ public class OAuth2UserService {
     private final MemberRepository memberRepository;
     private final RestTemplate restTemplate;
 
+    @Transactional(readOnly = false)
     public Map<String, Object> findOrSaveMember(String id_token, String provider) throws ParseException, JsonProcessingException {
         OAuth2Attribute oAuth2Attribute;
         switch (provider) {
@@ -37,7 +39,7 @@ public class OAuth2UserService {
                 throw new RuntimeException("제공하지 않는 인증기관입니다.");
         }
 
-        Integer httpStatus = HttpStatus.CREATED.value();
+        Integer httpStatus = HttpStatus.OK.value();
 
         Member member = memberRepository.findByEmail(oAuth2Attribute.getEmail())
                 .orElseGet(() -> {
@@ -53,8 +55,12 @@ public class OAuth2UserService {
                     return memberRepository.save(newMember);
                 });
 
+        if(member.getAddressDetail() == null || member.getBirth() == null || member.getNickname() == null || member.getPhoneNo() == null || member.getStreet() == null || member.getZipcode() == null) {
+            httpStatus = HttpStatus.CREATED.value();
+        }
+
         if(!member.isSocial()) {
-            httpStatus = HttpStatus.OK.value();
+            httpStatus = HttpStatus.ACCEPTED.value();
             member.updateSocial(Provider.of(provider));
             memberRepository.save(member);
         }
