@@ -24,5 +24,6 @@ public interface MemberMapper {
     @Mapping(target = "social", ignore = true)
     @Mapping(target = "provider", ignore = true)
     @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "memberImage", ignore = true)
     MemberDTO requestDTOToMemberDTO(MemberRequestDTO memberRequestDTO);
 }

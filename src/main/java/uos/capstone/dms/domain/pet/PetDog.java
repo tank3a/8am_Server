@@ -16,6 +16,7 @@ public class PetDog {
     @Id
     private Long petId;
 
+    @NonNull
     private String name;
     private LocalDate birth;
     private int gender;

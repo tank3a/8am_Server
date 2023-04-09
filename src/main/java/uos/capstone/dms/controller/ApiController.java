@@ -53,4 +53,11 @@ public class ApiController {
 
         return ResponseEntity.status((Integer) memberMap.get("status")).header("Set-Cookie", responseCookie.toString()).body(tokenResponseDTO);
     }
+
+
+    //redis구현 후 생각
+    @Operation(summary = "로그아웃")
+    @GetMapping("/logout")
+    public void logout() {
+    }
 }

@@ -2,6 +2,7 @@ package uos.capstone.dms.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -67,10 +68,13 @@ public class MemberController {
     @Operation(summary = "회원정보 수정")
     @PostMapping("/modify")
     public ResponseEntity memberModify(@ModelAttribute MemberRequestDTO memberRequestDTO) {
+        log.info(memberRequestDTO);
+
         if(!SecurityUtil.getCurrentUsername().equals(memberRequestDTO.getUserId())) {
             log.warn("잘못된 회원 ID로 접근하였습니다.");
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
+
         memberRequestDTO.setPassword(passwordEncoder.encode(memberRequestDTO.getPassword()));
         memberService.updateMember(memberRequestDTO, SecurityUtil.getCurrentUsername());
         return new ResponseEntity(HttpStatus.OK);
@@ -78,7 +82,7 @@ public class MemberController {
 
     @Operation(summary = "회원 탈퇴")
     @DeleteMapping("/delete")
-    public ResponseEntity memberDelete(@RequestBody String password) {
+    public ResponseEntity memberDelete(@RequestParam String password) {
         String userId = SecurityUtil.getCurrentUsername();
 
         HttpStatus httpStatus = memberService.deleteUser(userId, password);

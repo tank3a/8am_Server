@@ -21,7 +21,7 @@ public class PetOwner {
     private Member member;
 
     @Id
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @NonNull
     private PetDog petDog;
 
