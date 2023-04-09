@@ -18,6 +18,7 @@ import java.util.List;
 @Getter
 @EntityListeners(AuditingEntityListener.class)
 @DynamicUpdate
+@ToString(exclude = {"memberImage"})
 public class Member implements Persistable<String> {
 
     @Id

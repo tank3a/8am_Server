@@ -44,6 +44,10 @@ public class TokenService {
         return tokenDTO;
     }
 
+    //redis로 구현하기 때문에 생략
+    public void deleteToken() {
+    }
+
     public TokenDTO refresh(TokenDTO tokenDTO) {
         if(!tokenProvider.validateToken(tokenDTO.getRefreshToken())) {
             throw new RuntimeException("Refresh Token이 유효하지 않습니다.");

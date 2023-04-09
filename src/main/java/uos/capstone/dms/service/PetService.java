@@ -46,7 +46,7 @@ public class PetService {
     }
 
     //여기에 주인인지 여부 체크해야함
-    public List<PetImageDTO> loadPetImages(String petId) {
+    public List<PetImageDTO> loadPetImages(Long petId) {
         return imageRepository.findAllPetImages(petId).stream()
                 .map(petImage -> PetDogMapper.INSTANCE.petImageToPetImageDTO(petImage))
                 .collect(Collectors.toList());
@@ -106,5 +106,14 @@ public class PetService {
         }
 
         return null;
+    }
+
+    @Transactional
+    public void deletePet(PetDog petDog) {
+        List<PetImage> images = imageRepository.findAllPetImages(petDog.getPetId());
+        petDog.setProfileImage(null);
+        images.stream().forEach(petImage -> imageRepository.deleteById(petImage.getId()));
+        petRepository.deleteById(petDog.getPetId());
+
     }
 }

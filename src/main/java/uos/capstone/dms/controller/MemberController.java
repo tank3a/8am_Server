@@ -11,7 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import uos.capstone.dms.domain.token.TokenDTO;
 import uos.capstone.dms.domain.token.TokenResponseDTO;
-import uos.capstone.dms.domain.user.LoginRequestDTO;
+import uos.capstone.dms.domain.user.IdPasswordDTO;
 import uos.capstone.dms.domain.user.MemberRequestDTO;
 import uos.capstone.dms.domain.user.MemberDTO;
 import uos.capstone.dms.security.SecurityUtil;
@@ -38,9 +38,9 @@ public class MemberController {
     //social여부 체크해야함
     @Operation(summary = "로그인")
     @PostMapping("/login")
-    public ResponseEntity<TokenResponseDTO> memberLogin(@ModelAttribute LoginRequestDTO loginRequestDTO) {
-        log.info(loginRequestDTO);
-        TokenDTO tokenDTO = memberService.login(loginRequestDTO);
+    public ResponseEntity<TokenResponseDTO> memberLogin(@ModelAttribute IdPasswordDTO idPasswordDTO) {
+        log.info(idPasswordDTO);
+        TokenDTO tokenDTO = memberService.login(idPasswordDTO);
         ResponseCookie responseCookie = ResponseCookie
                 .from("refresh_token", tokenDTO.getRefreshToken())
                 .httpOnly(true)
@@ -74,5 +74,15 @@ public class MemberController {
         memberRequestDTO.setPassword(passwordEncoder.encode(memberRequestDTO.getPassword()));
         memberService.updateMember(memberRequestDTO, SecurityUtil.getCurrentUsername());
         return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @Operation(summary = "회원 탈퇴")
+    @DeleteMapping("/delete")
+    public ResponseEntity memberDelete(@RequestBody String password) {
+        String userId = SecurityUtil.getCurrentUsername();
+
+        HttpStatus httpStatus = memberService.deleteUser(userId, password);
+
+        return new ResponseEntity<>(httpStatus);
     }
 }
