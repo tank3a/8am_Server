@@ -54,6 +54,7 @@ public class BoardController {
 
         postDTO.setContent(postModifyDTO.getContent());
         postDTO.setTitle(postModifyDTO.getTitle());
+        postDTO.setModified(true);
 
         boardService.updatePost(postDTO, userId, boardId, postModifyDTO.getImageToDelete(), postModifyDTO.getImages());
     }
@@ -74,10 +75,67 @@ public class BoardController {
         return boardService.getPostDetail(postId);
     }
 
+    @GetMapping("/{boardId}/readComment")
+    public List<CommentDTO> getCommentList(@PathVariable("boardId") Long boardId, @RequestParam("postId") Long postId) {
+        return boardService.getCommentList(postId);
+    }
+
     @PostMapping("/{boardId}/comment/add")
-    public void addComment(@PathVariable("boardId") Long boardId, @RequestParam("postId") Long postId) {
+    public void addComment(@PathVariable("boardId") Long boardId, @RequestParam("postId") Long postId, @ModelAttribute CommentAddDTO commentToAdd, HttpServletResponse response) throws IOException {
         String userId = SecurityUtil.getCurrentUsername();
 
-        boardService.
+        if(commentToAdd.getContent() == null || commentToAdd.getContent().isEmpty()) {
+            throw new RuntimeException("빈 댓글은 등록할 수 없습니다.");
+        }
+
+        commentToAdd.setCommentId(null);
+        commentToAdd.setPostId(postId);
+        commentToAdd.setWriterId(userId);
+
+
+        boardService.addComment(commentToAdd);
+
+        response.sendRedirect("/board/" + boardId + "/readComment?postId=" + postId);
+    }
+
+    @PostMapping("/{boardId}/comment/update")
+    public void updateComment(@PathVariable("boardId") Long boardId, @RequestParam("postId") Long postId, @RequestParam("commentId") Long commentId, @ModelAttribute CommentAddDTO commentToAdd, HttpServletResponse response) throws IOException {
+        String userId = SecurityUtil.getCurrentUsername();
+
+        if(commentToAdd.getContent() == null || commentToAdd.getContent().isEmpty()) {
+            throw new RuntimeException("빈 댓글은 등록할 수 없습니다.");
+        }
+
+        CommentDTO commentDTO = boardService.getComment(commentId);
+        if(commentDTO.getPostId() != postId || !commentDTO.getWriterId().equals(userId)) {
+            throw new RuntimeException("잘못된 접근입니다.");
+        }
+
+        commentToAdd.setCommentId(commentDTO.getCommentId());
+        commentToAdd.setPostId(postId);
+        commentToAdd.setWriterId(userId);
+
+        boardService.addComment(commentToAdd);
+
+        response.sendRedirect("/board/" + boardId + "/readComment?postId=" + postId);
+    }
+
+    @DeleteMapping("/{boardId}/comment/delete")
+    public void deleteComment(@PathVariable("boardId") Long boardId, @RequestParam("postId") Long postId, @RequestParam("commentId") Long commentId, HttpServletResponse response) throws IOException {
+        CommentDTO commentDTO = boardService.getComment(commentId);
+        String userId = SecurityUtil.getCurrentUsername();
+
+        if(!userId.equals(commentDTO.getWriterId())) {
+            throw new RuntimeException("작성자만 삭제할 수 있습니다.");
+        }
+
+        if(commentDTO.getPostId() != postId) {
+            throw new RuntimeException("잘못된 접근입니다.");
+        }
+
+        boardService.deleteComment(commentId);
+
+        response.sendRedirect("/board/" + boardId + "/readComment?postId=" + postId);
+
     }
 }

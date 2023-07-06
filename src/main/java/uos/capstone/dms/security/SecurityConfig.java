@@ -38,7 +38,8 @@ public class SecurityConfig {
             "/board/list",
             "/board/**",
             "/board/{boardId}/list",
-            "/board/{boardId}/read"
+            "/board/{boardId}/read",
+            "/board/{boardId}/readComment"
     };
 
     @Bean

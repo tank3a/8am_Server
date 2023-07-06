@@ -30,6 +30,8 @@ public class Comment {
     @Column(name = "post")
     private Long postId;
 
+    private String content;
+
 
     @LastModifiedDate
     private LocalDateTime modifiedDate;
@@ -37,10 +39,14 @@ public class Comment {
     private boolean isModified;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Comment parentReply;
+    @JoinColumn(name = "parentComment", insertable = false, updatable = false)
+    private Comment parentComment;
 
-    @OneToMany(mappedBy = "parentReply", cascade = CascadeType.ALL)
-    private List<Comment> childReplies;
+    @Column(name = "parentComment")
+    private Long parentCommentId;
+
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL)
+    private List<Comment> childComments;
 
     private int likeCounts;
 
