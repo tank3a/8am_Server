@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import uos.capstone.dms.domain.pet.PetImage;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PetImageRepository extends JpaRepository<PetImage, List> {
@@ -18,4 +19,6 @@ public interface PetImageRepository extends JpaRepository<PetImage, List> {
     PetImage findByImageId(Long imageId);
 
     void deleteById(Long imageId);
+
+    Optional<PetImage> findByUuid(String uuid);
 }

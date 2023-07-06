@@ -17,4 +17,8 @@ public enum Provider {
                 return null;
         }
     }
+
+    public String getProvider() {
+        return provider;
+    }
 }

@@ -4,6 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 import uos.capstone.dms.domain.user.Member;
+import uos.capstone.dms.domain.user.MemberDataDTO;
 import uos.capstone.dms.domain.user.MemberRequestDTO;
 import uos.capstone.dms.domain.user.MemberDTO;
 
@@ -16,6 +17,10 @@ public interface MemberMapper {
 
     @Mapping(target = "password", ignore = true)
     Member memberDTOToMember(MemberDTO memberDTO);
+
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "uuid", source = "member.memberImage.uuid")
+    MemberDataDTO memberToMemberDataDTO(Member member);
 
     @Mapping(target = "social", ignore = true)
     @Mapping(target = "provider", ignore = true)
