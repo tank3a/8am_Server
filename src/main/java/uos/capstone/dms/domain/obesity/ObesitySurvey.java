@@ -1,10 +1,7 @@
 package uos.capstone.dms.domain.obesity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
@@ -12,6 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @NoArgsConstructor
 @ToString
 @EntityListeners(AuditingEntityListener.class)
+@Getter
 public class ObesitySurvey {
 
     @Id

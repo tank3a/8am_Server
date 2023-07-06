@@ -8,12 +8,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import uos.capstone.dms.domain.ImageDTO;
 import uos.capstone.dms.domain.board.*;
-import uos.capstone.dms.domain.pet.PetImage;
 import uos.capstone.dms.domain.user.MemberImage;
 import uos.capstone.dms.mapper.BoardMapper;
 import uos.capstone.dms.repository.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -137,39 +135,11 @@ public class BoardService {
         postDetailDTO.setImageUuid(imageUuid);
         postDetailDTO.setWriterName(memberRepository.findByUserId(postDetailDTO.getWriterId()).get().getNickname());
 
+        List<CommentDTO> comments = commentRepository.findAllByPostId(postId).stream().map(comment -> BoardMapper.INSTANCE.commentToCommentDTO(comment, comment.getWriter())).collect(Collectors.toList());
+        postDetailDTO.setComments(comments);
+
         return postDetailDTO;
     }
 
-    @Transactional(readOnly = true)
-    public List<CommentDTO> getCommentList(Long postId) {
-        return commentRepository.findAllByPostId(postId).stream().map(comment -> BoardMapper.INSTANCE.commentToCommentDTO(comment, comment.getWriter())).collect(Collectors.toList());
-    }
-
-    public void addComment(CommentAddDTO commentAddDTO) {
-        if(!postRepository.existsById(commentAddDTO.getPostId())) {
-            throw new RuntimeException("존재하지 않는 게시물입니다.");
-        }
-
-        Comment comment = BoardMapper.INSTANCE.commentAddDTOToComment(commentAddDTO);
-
-        commentRepository.save(comment);
-    }
-
-    @Transactional(readOnly = true)
-    public CommentDTO getComment(Long commentId) {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new RuntimeException("존재하지 않는 댓글 ID입니다."));
-
-        return BoardMapper.INSTANCE.commentToCommentDTO(comment, memberRepository.findByUserId(comment.getWriterId()).orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다.")));
-    }
-
-    public void deleteComment(Long commentId) {
-        commentRepository.deleteById(commentId);
-    }
-
-    @Transactional(readOnly = true)
-    public String getImage(String uuid) {
-        PostImage postImage = imageRepository.findByUuid(uuid).orElseThrow(() -> new RuntimeException("존재하지 않는 이미지입니다."));
-        return Paths.get(uploadPath, "petDog") + File.separator + postImage.getUuid() + "_" + postImage.getFileName();
-    }
 
 }

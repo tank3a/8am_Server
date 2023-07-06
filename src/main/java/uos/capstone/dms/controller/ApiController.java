@@ -20,7 +20,10 @@ import uos.capstone.dms.domain.token.TokenResponseDTO;
 import uos.capstone.dms.domain.user.MemberDTO;
 import uos.capstone.dms.security.JwtTokenProvider;
 import uos.capstone.dms.security.SecurityUtil;
-import uos.capstone.dms.service.*;
+import uos.capstone.dms.service.MemberService;
+import uos.capstone.dms.service.OAuth2UserService;
+import uos.capstone.dms.service.PetService;
+import uos.capstone.dms.service.TokenService;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +46,6 @@ public class ApiController {
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberService memberService;
     private final PetService petService;
-    private final BoardService boardService;
 
     @Operation(summary = "토큰 갱신")
     @PostMapping("/refreshToken")
@@ -124,22 +126,6 @@ public class ApiController {
         } catch (IOException e) {
             throw new RuntimeException("서버 파일 접근 오류");
         }
-    }
 
-    @GetMapping("/post")
-    public ResponseEntity<Resource> getPostImage(@RequestParam("uuid") String uuid) {
-
-        String filePath = boardService.getImage(uuid);
-        org.springframework.core.io.Resource resource = new FileSystemResource(filePath);
-
-        HttpHeaders headers = new HttpHeaders();
-        Path path = Paths.get(filePath);
-
-        try {
-            headers.add("Content-Type", Files.probeContentType(path));
-            return new ResponseEntity<>(resource, headers, HttpStatus.OK);
-        } catch (IOException e) {
-            throw new RuntimeException("서버 파일 접근 오류");
-        }
     }
 }

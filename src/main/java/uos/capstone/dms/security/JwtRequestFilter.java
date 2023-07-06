@@ -40,7 +40,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     private String resolveToken(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
-        log.info("Token: " + token);
         if(StringUtils.hasText(token) && token.startsWith(BEARER_PREFIX)) {
             return token.substring(7);    //"Bearer "를 뺀 값, 즉 토큰 값
         }

@@ -23,4 +23,5 @@ public class PostDetailDTO {
     private String writerId;
     private String writerName;
     private List<String> imageUuid;
+    private List<CommentDTO> comments;
 }
