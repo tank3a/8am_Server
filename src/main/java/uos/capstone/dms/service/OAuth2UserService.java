@@ -3,6 +3,7 @@ package uos.capstone.dms.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -23,6 +24,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class OAuth2UserService {
 
     private final MemberRepository memberRepository;
@@ -72,6 +74,15 @@ public class OAuth2UserService {
         return result;
     }
 
+    public HttpStatusCode deleteSocialMember(String id_token, String provider) throws ParseException, JsonProcessingException {
+        switch (provider) {
+            case "google":
+                log.info("Got DTO: " + findOrSaveMember(id_token, provider).get("dto"));
+                return deleteGoogleData(id_token);
+        }
+        return HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+
     private OAuth2Attribute getGoogleData(String id_token)  throws ParseException, JsonProcessingException {
 
         HttpHeaders headers = new HttpHeaders();
@@ -87,6 +98,18 @@ public class OAuth2UserService {
         Map<String, Object> body = new ObjectMapper().readValue(jsonBody.toString(), Map.class);
 
         return OAuth2Attribute.of("google", "sub", body);
+    }
+
+    private HttpStatusCode deleteGoogleData(String id_token) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        String googleApi = "https://oauth2.googleapis.com/revoke";
+        String targetUrl = UriComponentsBuilder.fromHttpUrl(googleApi).queryParam("token", id_token).build().toUriString();
+
+        ResponseEntity<String> response = restTemplate.exchange(targetUrl, HttpMethod.POST, entity, String.class);
+
+        return response.getStatusCode();
     }
 }
 

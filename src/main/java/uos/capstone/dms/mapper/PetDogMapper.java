@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 import uos.capstone.dms.domain.pet.*;
-import uos.capstone.dms.domain.user.Member;
+import java.time.LocalDateTime;
 
 @Mapper(componentModel = "spring")
 public interface PetDogMapper {
@@ -20,4 +20,5 @@ public interface PetDogMapper {
 
     @Mapping(target = "petId", source = "petImage.petDog.petId")
     PetImageDTO petImageToPetImageDTO(PetImage petImage);
+
 }

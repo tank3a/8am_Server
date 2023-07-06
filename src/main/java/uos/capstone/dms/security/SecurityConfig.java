@@ -34,7 +34,12 @@ public class SecurityConfig {
             "/swagger-ui/**",
             "/oauth2/**",
             "/api/**",
-            "/pet/getBreedList"
+            "/pet/getBreedList",
+            "/board/list",
+            "/board/**",
+            "/board/{boardId}/list",
+            "/board/{boardId}/read",
+            "/board/{boardId}/readComment"
     };
 
     @Bean

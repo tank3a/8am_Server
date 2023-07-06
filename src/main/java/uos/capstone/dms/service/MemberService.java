@@ -14,15 +14,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import uos.capstone.dms.domain.ImageDTO;
-import uos.capstone.dms.domain.pet.PetDog;
 import uos.capstone.dms.domain.token.TokenDTO;
 import uos.capstone.dms.domain.user.*;
 import uos.capstone.dms.mapper.MemberMapper;
 import uos.capstone.dms.repository.MemberImageRepository;
 import uos.capstone.dms.repository.MemberRepository;
-import uos.capstone.dms.repository.PetOwnRepository;
-import uos.capstone.dms.repository.RefreshTokenRepository;
+import uos.capstone.dms.repository.PetRepository;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,9 +40,8 @@ public class MemberService implements UserDetailsService {
     private final TokenService tokenService;
     private final FileService fileService;
     private final AuthService authService;
-    private final PetOwnRepository petOwnRepository;
-    private final PetService petService;
-    private final RefreshTokenRepository tokenRepository;
+    private final PetRepository petRepository;
+    private final OAuth2UserService oAuth2UserService;
 
     @Value("${spring.servlet.multipart.location}")
     private String uploadPath;
@@ -76,8 +74,11 @@ public class MemberService implements UserDetailsService {
         return MemberMapper.INSTANCE.memberToMemberDTO(member);
     }
 
-    public MemberDTO getMember(String userId) {
-        return MemberMapper.INSTANCE.memberToMemberDTO(findMemberByUserId(userId));
+    public MemberDataDTO getMember(String userId) {
+        Member member = findMemberByUserId(userId);
+        MemberDataDTO dataDTO =  MemberMapper.INSTANCE.memberToMemberDataDTO(member);
+        dataDTO.setCreatedDate(member.getCreatedDate().toLocalDate());
+        return dataDTO;
     }
 
     @Transactional
@@ -177,6 +178,8 @@ public class MemberService implements UserDetailsService {
         return null;
     }
 
+
+
     @Transactional(readOnly = false)
     public HttpStatus deleteUser(String userId, String password) {
         Member member = memberRepository.findByUserIdEagerLoadImage(userId).orElseThrow(() -> new RuntimeException("존재하지 않는 사용자입니다."));
@@ -191,22 +194,26 @@ public class MemberService implements UserDetailsService {
             authService.authenticatePassword(idPasswordDTO);
         }
 
-        List<PetDog> petList = petOwnRepository.findAllByMember(userId);
-        petOwnRepository.deleteAllByMember(member);
-
-        petList.stream().forEach(petDog -> {
-            if(petOwnRepository.findAllByPet(petDog.getPetId()).isEmpty()) {
-                petService.deletePet(petDog);
+        else {
+            try {
+                oAuth2UserService.deleteSocialMember(password, member.getProvider().getProvider());
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                throw new RuntimeException("소셜 연동 해제 중 오류가 발생하였습니다.");
             }
-        });
-
-        if(member.getMemberImage() != null) {
-            imageRepository.deleteById(member.getMemberImage().getId());
         }
 
-        tokenRepository.deleteByMember(member);
-        memberRepository.deleteByUserId(userId);
 
+        memberRepository.deleteByUserId(userId);
         return HttpStatus.OK;
     }
+
+    @Transactional(readOnly = true)
+    public String hasProfileImage(String uuid) {
+        MemberImage memberImage = imageRepository.findByUuid(uuid).orElseThrow(() -> new RuntimeException("존재하지 않는 이미지입니다."));
+        return Paths.get(uploadPath, "member") + File.separator + memberImage.getUuid() + "_" + memberImage.getFileName();
+
+    }
+
+
 }

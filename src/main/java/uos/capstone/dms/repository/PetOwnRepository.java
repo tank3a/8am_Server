@@ -30,4 +30,7 @@ public interface PetOwnRepository extends JpaRepository<PetOwner, PetOwnerId> {
     @Modifying
     @Transactional
     void deleteAllByMember(Member member);
+
+    @Query("select exists(select po from PetOwner po where po.petDog.petId = :petId and po.member.userId = :userId)")
+    boolean existsByMemberAndPet(String userId, Long petId);
 }

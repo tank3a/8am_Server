@@ -11,10 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 @Component
 @RequiredArgsConstructor
@@ -27,19 +24,23 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String jwt = resolveToken(request);
-//
-//        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(request.getInputStream()));
-//        log.info(bufferedReader.readLine());
 
-        if(StringUtils.hasText(jwt) && jwtTokenProvider.validateToken(jwt)) {
-            Authentication authentication = jwtTokenProvider.getAuthentication(jwt);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        if(jwt != null) {
+            int validation = jwtTokenProvider.validateToken(jwt);
+            if(validation == 1) {
+                Authentication authentication = jwtTokenProvider.getAuthentication(jwt);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+            else if(validation == 0) {
+                SecurityContextHolder.getContext().setAuthentication(jwtTokenProvider.checkRefreshToken(jwt));
+            }
         }
         filterChain.doFilter(request, response);
     }
 
     private String resolveToken(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
+        log.info("Token: " + token);
         if(StringUtils.hasText(token) && token.startsWith(BEARER_PREFIX)) {
             return token.substring(7);    //"Bearer "를 뺀 값, 즉 토큰 값
         }

@@ -12,5 +12,4 @@ import lombok.NoArgsConstructor;
 public class TokenResponseDTO {
 
     private String accessToken;
-    private boolean isNewMember;
 }

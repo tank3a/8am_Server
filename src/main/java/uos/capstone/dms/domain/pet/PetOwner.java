@@ -21,7 +21,7 @@ public class PetOwner {
     private Member member;
 
     @Id
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @NonNull
     private PetDog petDog;
 

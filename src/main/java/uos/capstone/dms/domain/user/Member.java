@@ -7,6 +7,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import uos.capstone.dms.domain.auth.Provider;
+import uos.capstone.dms.domain.pet.PetDog;
+import uos.capstone.dms.domain.pet.PetOwner;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -42,8 +44,11 @@ public class Member implements Persistable<String> {
     private String addressDetail;
     @Enumerated(EnumType.STRING)
     private List<Role> roles;
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private MemberImage memberImage;    //프로필 사진
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<PetOwner> petOwners = new ArrayList<>();
 
     @CreatedDate
     @Column(updatable = false)

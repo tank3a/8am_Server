@@ -2,17 +2,21 @@ package uos.capstone.dms.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 import uos.capstone.dms.domain.token.TokenDTO;
 import uos.capstone.dms.domain.token.TokenResponseDTO;
 import uos.capstone.dms.domain.user.IdPasswordDTO;
+import uos.capstone.dms.domain.user.MemberDataDTO;
 import uos.capstone.dms.domain.user.MemberRequestDTO;
 import uos.capstone.dms.domain.user.MemberDTO;
 import uos.capstone.dms.security.SecurityUtil;
@@ -39,10 +43,10 @@ public class MemberController {
     //social여부 체크해야함
     @Operation(summary = "로그인")
     @PostMapping("/login")
-    public ResponseEntity<TokenResponseDTO> memberLogin(@ModelAttribute IdPasswordDTO idPasswordDTO) {
+    public ResponseEntity<String> memberLogin(@ModelAttribute IdPasswordDTO idPasswordDTO, HttpServletResponse response) {
         log.info(idPasswordDTO);
         TokenDTO tokenDTO = memberService.login(idPasswordDTO);
-        ResponseCookie responseCookie = ResponseCookie
+        ResponseCookie cookie = ResponseCookie
                 .from("refresh_token", tokenDTO.getRefreshToken())
                 .httpOnly(true)
                 .secure(true)
@@ -51,17 +55,14 @@ public class MemberController {
                 .path("/")
                 .build();
 
-        TokenResponseDTO tokenResponseDTO = TokenResponseDTO.builder()
-                .isNewMember(false)
-                .accessToken(tokenDTO.getAccessToken())
-                .build();
-
-        return ResponseEntity.ok().header("Set-Cookie", responseCookie.toString()).body(tokenResponseDTO);
+        response.setHeader("Authorization", "Bearer " + tokenDTO.getAccessToken());
+        response.setHeader("Set-Cookie", cookie.toString());
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Operation(summary = "회원정보 호출")
     @GetMapping("/getMemberData")
-    public ResponseEntity<MemberDTO> loadMemberData() {
+    public ResponseEntity<MemberDataDTO> loadMemberData() {
         return ResponseEntity.ok(memberService.getMember(SecurityUtil.getCurrentUsername()));
     }
 
@@ -82,11 +83,15 @@ public class MemberController {
 
     @Operation(summary = "회원 탈퇴")
     @DeleteMapping("/delete")
-    public ResponseEntity memberDelete(@RequestParam String password) {
+    public ResponseEntity memberDelete(@RequestBody String password) {
         String userId = SecurityUtil.getCurrentUsername();
 
         HttpStatus httpStatus = memberService.deleteUser(userId, password);
 
         return new ResponseEntity<>(httpStatus);
     }
+
+    //로그아웃(access token 블랙리스트를 만들고 refresh token은 여부 체크)
+
+    //아이디+비밀번호 찾기
 }
