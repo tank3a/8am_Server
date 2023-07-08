@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -16,6 +18,7 @@ public class PetDog {
     @Id
     private Long petId;
 
+    @NonNull
     private String name;
     private LocalDate birth;
     private int gender;
@@ -27,8 +30,16 @@ public class PetDog {
     private int obesity;
     private int calorieGoal;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private PetImage profileImage;
+
+    @OneToMany(mappedBy = "petDog", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PetOwner> owners = new ArrayList<>();
+
+    @PreRemove
+    public void preRemove() {
+        if (!owners.isEmpty()) {}
+    }
 
     @Builder
     public PetDog(Long petId, String name, LocalDate birth, int gender, Breed breed, double weight, int calorieGoal, PetImage profileImage) {
@@ -52,5 +63,9 @@ public class PetDog {
 
     public void setProfileImage(PetImage image) {
         this.profileImage = image;
+    }
+
+    public void setWeight(double weight) {
+        this.weight = weight;
     }
 }

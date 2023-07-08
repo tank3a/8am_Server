@@ -1,7 +1,6 @@
 package uos.capstone.dms.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import uos.capstone.dms.domain.token.RefreshToken;
 import uos.capstone.dms.domain.token.TokenDTO;
@@ -23,7 +22,7 @@ public class TokenService {
         TokenDTO tokenDTO = tokenProvider.createTokenDTO(memberDTO.getUserId(), memberDTO.getRoles());
         Member member = memberRepository.findByUserId(memberDTO.getUserId()).orElseThrow(() -> new RuntimeException("Wrong Access (member does not exist)"));
         RefreshToken refreshToken = RefreshToken.builder()
-                .member(member)
+                .memberId(member.getId())
                 .token(tokenDTO.getRefreshToken())
                 .build();
 
@@ -35,7 +34,7 @@ public class TokenService {
     public TokenDTO createToken(Member member) {
         TokenDTO tokenDTO = tokenProvider.createTokenDTO(member.getUserId(), member.getRoles());
         RefreshToken refreshToken = RefreshToken.builder()
-                .member(member)
+                .memberId(member.getId())
                 .token(tokenDTO.getRefreshToken())
                 .build();
 
@@ -44,26 +43,9 @@ public class TokenService {
         return tokenDTO;
     }
 
-    public TokenDTO refresh(TokenDTO tokenDTO) {
-        if(!tokenProvider.validateToken(tokenDTO.getRefreshToken())) {
-            throw new RuntimeException("Refresh Token이 유효하지 않습니다.");
-        }
+    public TokenDTO regenerateToken(String refreshToken, String userId) {
+        refreshTokenRepository.deleteById(refreshToken);
+        return createToken(memberRepository.findById(userId).get());
 
-        Authentication authentication = tokenProvider.getAuthentication(tokenDTO.getAccessToken());
-
-        RefreshToken refreshToken = refreshTokenRepository.findByMember(memberRepository.findByUserId(authentication.getName()).get())
-                .orElseThrow(() -> new RuntimeException("로그아웃 된 사용자입니다."));
-
-        if (!refreshToken.getToken().equals(tokenDTO.getRefreshToken())) {
-            throw new RuntimeException("Refresh Token이 일치하지 않습니다.");
-        }
-
-        Member member = memberRepository.findByUserId(refreshToken.getMember().getUserId()).orElseThrow(() -> new RuntimeException("존재하지 않는 계정입니다."));
-        TokenDTO tokenDto = tokenProvider.createTokenDTO(member.getUserId(), member.getRoles());
-
-        RefreshToken newRefreshToken = refreshToken.updateValue(tokenDto.getRefreshToken());
-        refreshTokenRepository.save(newRefreshToken);
-
-        return tokenDto;
     }
 }

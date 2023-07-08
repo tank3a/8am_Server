@@ -11,7 +11,9 @@ import lombok.*;
 public class Breed {
 
     @Id
+    @NonNull
     private Long id;
+    @NonNull
     private String breedName;
 
     @Builder

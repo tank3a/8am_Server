@@ -2,6 +2,7 @@ package uos.capstone.dms.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.*;
 import uos.capstone.dms.domain.pet.*;
 import uos.capstone.dms.security.SecurityUtil;
@@ -14,6 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/pet")
 @RequiredArgsConstructor
+@Log4j2
 public class PetController {
 
     private final BreedService breedService;
@@ -37,7 +39,7 @@ public class PetController {
 
     @PostMapping("/dog/register")
     public PetDogDTO registerPetDog(@ModelAttribute PetDogRegisterDTO petDogRegisterDTO) {
-
+        log.info("register: " + petDogRegisterDTO);
         return petService.registerPet(petDogRegisterDTO);
     }
 
