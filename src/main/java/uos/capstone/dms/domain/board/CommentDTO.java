@@ -13,12 +13,14 @@ import java.util.List;
 public class CommentDTO {
 
     private Long commentId;
-
+    private Long postId;
     private LocalDateTime modifiedDate;
 
     private boolean isModified;
 
-    private List<CommentDTO> childReplies;
+    private List<CommentDTO> childComments;
+
+    private String content;
 
     private int likeCounts;
     private String writerId;

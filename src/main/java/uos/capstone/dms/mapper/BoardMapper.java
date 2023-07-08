@@ -28,4 +28,9 @@ public interface BoardMapper {
     @Mapping(target = "writerId", source = "member.userId")
     @Mapping(target = "writerName", source = "member.nickname")
     CommentDTO commentToCommentDTO(Comment comment, Member member);
+
+    Comment commentAddDTOToComment(CommentAddDTO commentAddDTO);
+
+
+    Comment commentDTOToComment(CommentDTO commentDTO);
 }
