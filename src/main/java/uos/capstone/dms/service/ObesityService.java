@@ -1,6 +1,7 @@
 package uos.capstone.dms.service;
 
 import lombok.RequiredArgsConstructor;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +17,12 @@ import uos.capstone.dms.repository.ObesityRepository;
 import uos.capstone.dms.repository.ObesitySurveyRepository;
 import uos.capstone.dms.security.SecurityUtil;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
@@ -36,8 +42,11 @@ public class ObesityService {
     @Value("${spring.servlet.multipart.location}")
     private String uploadPath;
 
+    @Value("${spring.datasource.url}")
+    private String url;
+
     @Transactional
-    public ObesityCurrentDTO register(ObesityRegisterDTO obesityRegisterDTO) {
+    public ObesityCurrentDTO register(ObesityRegisterDTO obesityRegisterDTO) throws IOException {
 
         PetDog petDog = petService.findPetById(obesityRegisterDTO.getPetId());
         if(obesityRegisterDTO.getWeight() < 0) {
@@ -74,7 +83,49 @@ public class ObesityService {
             imageRepository.save(obesityImage);
         });
 
+        int obesityResult = determineObesity(obesity.getImages(), obesity.getSurvey());
+        obesity.setObesity(obesityResult);
+        obesityRepository.save(obesity);
+
         return ObesityMapper.INSTANCE.petDogToObesityCurrentDTO(petDog, obesitySaved);
+    }
+
+    @Transactional
+    public int determineObesity(List<ObesityImage> images, ObesitySurvey survey) throws IOException {
+        URL urlToDeterminator = new URL(url + ":10002");
+        HttpURLConnection connection = (HttpURLConnection) urlToDeterminator.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
+        connection.setRequestProperty("Content-Type", "application/json");
+
+        DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
+
+        JSONObject data = new JSONObject();
+        data.put("picture1", images.get(0).getFileUrl());
+        data.put("picture2", images.get(1).getFileUrl());
+        data.put("touchRip", survey.getTouchRip());
+        data.put("seeRip", survey.getSeeRip());
+        data.put("touchBelly", survey.getTouchBelly());
+        data.put("seeWeistUp", survey.getSeeWeistUp());
+        data.put("seeWeistSide", survey.getSeeWeistSide());
+
+        outputStream.writeBytes(data.toJSONString());
+        outputStream.close();
+
+        int responseCode = connection.getResponseCode();
+
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        StringBuffer stringBuffer = new StringBuffer();
+        String inputLine;
+
+        while ((inputLine = bufferedReader.readLine()) != null)  {
+            stringBuffer.append(inputLine);
+        }
+        bufferedReader.close();
+
+        String response = stringBuffer.toString();
+
+        return Integer.parseInt(response);
     }
 
     @Transactional(readOnly = true)

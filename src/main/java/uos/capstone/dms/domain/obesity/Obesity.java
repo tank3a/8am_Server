@@ -41,4 +41,8 @@ public class Obesity {
         this.weight = weight;
         this.obesity = obesity;
     }
+
+    public void setObesity(int obesity) {
+        this.obesity = obesity;
+    }
 }
