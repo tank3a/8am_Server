@@ -169,7 +169,7 @@ public class BoardService {
     @Transactional(readOnly = true)
     public String getImage(String uuid) {
         PostImage postImage = imageRepository.findByUuid(uuid).orElseThrow(() -> new RuntimeException("존재하지 않는 이미지입니다."));
-        return Paths.get(uploadPath, "petDog") + File.separator + postImage.getUuid() + "_" + postImage.getFileName();
+        return Paths.get(uploadPath, "post") + File.separator + postImage.getUuid() + "_" + postImage.getFileName();
     }
 
 }
